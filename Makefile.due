@@ -18,6 +18,4 @@ HEAP              ?= BMPTK
 # defer to the Makefile.link
 include           $(RELATIVE)/Makefile.link
 
-#add I2C_library
-I2C               ?= ../../../libraries/I2C_library
-include              $(I2C)/Makefile.inc
+

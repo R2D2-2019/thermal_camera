@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-#include "C:\\Users\\ramon\\Documents\\HU ICT 2\\C\\R2D2\\R2D2-build\\libraries\\I2C_library\\code\\headers\\i2c_bus.hpp"
+//#include "i2c_bus.hpp"
 #include "MLX90640_I2C_Driver.h"
 
 //I2C i2c(p9, p10);     
@@ -66,8 +66,12 @@ void MLX90640_I2CInit()
 //     return 0;   
 // } 
 //Own implementation 
-int MLX90640_I2CRead(uint8_t slaveAddr, uint16_t startAddress, uint16_t nMemAddressRead, uint8_t *data){
-    i2c.read(slaveAddr,data, 8);  
+int MLX90640_I2CRead(uint8_t slaveAddr, uint16_t startAddress, uint16_t nMemAddressRead, uint16_t *data){
+    uint8_t *first_part, *second_part; 
+    *first_part = (0xf & *data); 
+    *second_part = (8 >> *data); 
+    i2c.read(slaveAddr,first_part, 8,startAddress,nMemAddressRead);
+    i2c.read(slaveAddr,second_part, 8,startAddress,nMemAddressRead);   
     return 0; 
 
 }
@@ -75,6 +79,7 @@ int MLX90640_I2CRead(uint8_t slaveAddr, uint16_t startAddress, uint16_t nMemAddr
 void MLX90640_I2CFreqSet(int freq)
 {
     //i2c.frequency(1000*freq);
+    
 }
 
 // int MLX90640_I2CWrite1(uint8_t slaveAddr, uint16_t writeAddress, uint16_t data)
@@ -112,8 +117,8 @@ void MLX90640_I2CFreqSet(int freq)
 // }
 
 int MLX90640_I2CWrite(uint8_t slaveAddr,uint16_t writeAddress, uint8_t *data){
-   
-    i2c.write(slaveAddr,data, sizeof(data)/sizeof(uint8_t)); 
+    
+    i2c.write(slaveAddr,data,sizeof(data)/sizeof(uint8_t),writeAddress,2); 
     return 0; 
 
 }

@@ -1,5 +1,6 @@
 #include "hwlib.hpp"
-
+#include "MLX90640_I2C_Driver.h"
+#include "MLX90640_API.h"
 int main(void) {
   // kill the watchdog
     WDT->WDT_MR = WDT_MR_WDDIS;

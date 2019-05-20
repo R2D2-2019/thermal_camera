@@ -18,9 +18,10 @@
 #define _MLX90640_I2C_Driver_H_
 
 #include <stdint.h>
+#include "i2c_bus.hpp"
 
     void MLX90640_I2CInit(void);
-    int MLX90640_I2CRead(uint8_t slaveAddr,uint16_t startAddress, uint16_t nMemAddressRead, uint8_t *data);
+    int MLX90640_I2CRead(uint8_t slaveAddr,uint16_t startAddress, uint16_t nMemAddressRead, uint16_t *data);
     int MLX90640_I2CWrite(uint8_t slaveAddr,uint16_t writeAddress, uint8_t data);
     void MLX90640_I2CFreqSet(int freq);
 #endif
