@@ -67,11 +67,11 @@ void MLX90640_I2CInit()
 // } 
 //Own implementation 
 int MLX90640_I2CRead(uint8_t slaveAddr, uint16_t startAddress, uint16_t nMemAddressRead, uint16_t *data){
-    uint8_t *first_part, *second_part; 
-    *first_part = (0xf & *data); 
-    *second_part = (8 >> *data); 
-    i2c.read(slaveAddr,first_part, 8,startAddress,nMemAddressRead);
-    i2c.read(slaveAddr,second_part, 8,startAddress,nMemAddressRead);   
+    uint8_t first_part, second_part; 
+    first_part = (0x0f & *data); 
+    second_part = ( *data >>4); 
+    i2c.read(slaveAddr,&first_part, 8,startAddress,nMemAddressRead);
+    i2c.read(slaveAddr,&second_part, 8,startAddress,nMemAddressRead);   
     return 0; 
 
 }
@@ -118,7 +118,7 @@ void MLX90640_I2CFreqSet(int freq)
 
 int MLX90640_I2CWrite(uint8_t slaveAddr,uint16_t writeAddress, uint8_t *data){
     
-    i2c.write(slaveAddr,data,sizeof(data)/sizeof(uint8_t),writeAddress,2); 
+    i2c.write(slaveAddr,data,sizeof(*data)/sizeof(uint8_t),writeAddress,2); 
     return 0; 
 
 }
