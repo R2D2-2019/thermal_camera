@@ -1,13 +1,13 @@
 #include "thermal_image_shell.hpp"
 
-uint32_t thermal_image_shell_c::array_hash_index(uint32_t x, uint32_t y) {
+uint32_t thermal_image_shell_c::calculate_array_index(uint32_t x, uint32_t y) {
 
-	if (y > image_height) {
-        y = image_height;
+	if (y >= image_height) {
+        y = image_height-1;
     }
 
-	if (x > image_width) {
-        x = image_width;
+	if (x >= image_width) {
+        x = image_width-1;
 	}
 
     uint32_t new_index = (y * image_width) + x;
@@ -39,12 +39,12 @@ uint32_t thermal_image_shell_c::get_image_width() {
 
 int16_t thermal_image_shell_c::get_pixel(const uint32_t x, const uint32_t y) {
 
-    int16_t pixel_data = pixel_container[array_hash_index(x, y)];
+    int16_t pixel_data = pixel_container[calculate_array_index(x, y)];
 
 	return pixel_data;
 }
 
 void thermal_image_shell_c::set_pixel(const uint32_t x, const uint32_t y, const int16_t pixel_data) {
 
-	pixel_container[array_hash_index(x, y)] = pixel_data;
+	pixel_container[calculate_array_index(x, y)] = pixel_data;
 }

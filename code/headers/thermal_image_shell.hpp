@@ -12,7 +12,7 @@ private:
 	int16_t *pixel_container;
 
 	// Find the pixel_container index from x, y coordinate
-	uint32_t array_hash_index(uint32_t x, uint32_t y);
+	uint32_t calculate_array_index(uint32_t x, uint32_t y);
 	
 public: 
 	// Constructor
