@@ -36,7 +36,7 @@ namespace r2d2::thermal_camera {
             return;
         }
         refresh_rate =
-            static_cast<uint16_t>(std::round(1 + std::log2(refresh_rate)));
+            static_cast<uint16_t>(1 + std::log2(refresh_rate));
 
         uint16_t data = read_register(CONTROL_REGISTER);
 
