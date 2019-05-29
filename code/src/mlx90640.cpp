@@ -10,46 +10,58 @@ namespace r2d2::thermal_camera {
         set_refresh_rate(refresh_rate);
     }
 
-    uint16_t mlx90640_c::read_register(const uint16_t internal_address) {
+    uint16_t mlx90640_c::read_register(const uint16_t internal_address) const {
         uint8_t raw_data[2];
         bus.read(address, raw_data, 2, internal_address, 2);
         return static_cast<uint16_t>((raw_data[1] << 8) | raw_data[0]);
     }
 
     void mlx90640_c::write_register(const uint16_t internal_address,
-                                    const uint16_t data) {
+                                    const uint16_t data) const {
         uint8_t array_data[] = {static_cast<uint8_t>(data),
                                 static_cast<uint8_t>(data >> 8)};
         bus.write(I2C_ADDRESS, array_data, 2, internal_address, 2);
     }
 
-    void mlx90640_c::get_raw_pixels() {
+    void mlx90640_c::set_raw_pixels() {
     }
 
     void mlx90640_c::toggle_nth_bit(uint16_t &source, const uint8_t n,
-                                    const uint8_t to) {
+                                    const uint8_t to) const {
         source = (source & ~(1U << n)) | (to << n);
     }
 
-    void mlx90640_c::set_refresh_rate(uint16_t refresh_rate) {
+    uint16_t mlx90640_c::get_refresh_rate() const {
+        uint16_t rate = read_register(CONTROL_REGISTER);
+        rate >>= 7 & 7;
+        return 1 << (rate - 1);
+    }
+
+    void mlx90640_c::set_refresh_rate(uint16_t refresh_rate) const {
         if (refresh_rate > MAX_REFRESH_RATE) {
             return;
         }
-        refresh_rate =
-            static_cast<uint16_t>(1 + std::log2(refresh_rate));
-
+        refresh_rate = static_cast<uint16_t>(1 + std::log2(refresh_rate));
         uint16_t data = read_register(CONTROL_REGISTER);
-
         for (uint8_t i = 0; i < 3; i++) {
             toggle_nth_bit(data, i + 7, refresh_rate >> i & 1);
         }
         write_register(CONTROL_REGISTER, data);
     }
 
-    uint16_t mlx90640_c::get_refresh_rate() {
-        uint16_t rate = read_register(CONTROL_REGISTER);
-        rate >>= 7 & 7;
-        return 1 << (rate - 1);
+    bool mlx90640_c::frame_available() const {
+        uint16_t data = read_register(STATUS_REGISTER);
+        // Checks wether the 3rd bit is 1 or 0.
+        const bool frame_available = (data >> 2) & 1;
+        if (!frame_available) {
+            // frame available is false, so we don't need to
+            // toggle anything back. We can leave as it was.
+            return false;
+        }
+        // Otherwise, mark bit as read by setting it back to 0
+        toggle_nth_bit(data, 3, 0);
+        write_register(STATUS_REGISTER, data);
+        return frame_available;
     }
 
 } // namespace r2d2::thermal_camera
