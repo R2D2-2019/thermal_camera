@@ -6,6 +6,8 @@ namespace r2d2::thermal_camera {
     // MLX90640 16 bits registers
     enum : uint16_t { CONTROL_REGISTER = 0x800D, STATUS_REGISTER = 0x8000 };
 
+    enum class reading_pattern { INTERLEAVED_MODE, CHESS_PATTERN_MODE };
+
     class mlx90640_c {
     private:
         i2c::i2c_bus_c &bus;
@@ -80,6 +82,20 @@ namespace r2d2::thermal_camera {
          * */
         bool frame_available() const;
         // Max refresh rate.
+
+        /**
+         * Sets the reading pattern of the chip. Interleaved (TV) mode or Chess
+         * pattern mode. When chess pattern mode is selected, pixels in the row
+         * 0, 2, 4, 6, 8, 10 etc are read first, then 1, . In Interleaved mode,
+         * pixels in the column 0, 2, 4, 6, 8, 10 etc are read first. Then 1, 3,
+         * 5 etc. Chess pattern is default on the chip and is preffered since
+         * this results in better fixed pattern noise behaviour of the sensor.
+         *
+         * @param reading_pattern
+         * */
+        void set_reading_pattern(const reading_pattern &pattern);
+
+        // Max refresh rate of the chip
         static constexpr uint16_t MAX_REFRESH_RATE = 64;
     };
 

@@ -2,6 +2,7 @@
 
 using namespace r2d2::thermal_camera;
 using namespace r2d2::i2c;
+
 int main() {
 
     // kill the watchdog

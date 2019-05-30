@@ -64,4 +64,19 @@ namespace r2d2::thermal_camera {
         return frame_available;
     }
 
+    void mlx90640_c::set_reading_pattern(const reading_pattern &pattern) {
+        uint16_t data = read_register(CONTROL_REGISTER);
+        uint8_t bit;
+        switch (pattern) {
+        case reading_pattern::CHESS_PATTERN_MODE:
+            bit = 1;
+            break;
+        case reading_pattern::INTERLEAVED_MODE:
+            bit = 0;
+            break;
+        }
+        toggle_nth_bit(data, 12, bit);
+        write_register(CONTROL_REGISTER, data);
+    }
+
 } // namespace r2d2::thermal_camera
