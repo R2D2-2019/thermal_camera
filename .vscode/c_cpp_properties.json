@@ -5,6 +5,11 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/../../libraries/hwlib/library",
+                "${workspaceFolder}/../../libraries/trng_library/code/headers",
+                "${workspaceFolder}/../../libraries/datastructures/code/headers",
+                "${workspaceFolder}/../../libraries/internal_communication/code/headers",
+                "${workspaceFolder}/../../libraries/I2C_library/code/headers",
+                "${workspaceFolder}/../../libraries/Catch2/include",
                 "${workspaceFolder}/../../programs/bmptk/targets/cortex/atmel"
             ],
             "defines": [

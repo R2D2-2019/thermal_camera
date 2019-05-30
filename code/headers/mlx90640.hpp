@@ -1,34 +1,14 @@
 #pragma once
 
 #include <i2c_bus.hpp>
+#include <mlx90640_processor.hpp>
 
 namespace r2d2::thermal_camera {
-    // MLX90640 16 bits registers
-    enum : uint16_t { CONTROL_REGISTER = 0x800D, STATUS_REGISTER = 0x8000 };
 
     enum class reading_pattern { INTERLEAVED_MODE, CHESS_PATTERN_MODE };
 
-    class mlx90640_c {
+    class mlx90640_c : public mlx90640_processor_c {
     private:
-        i2c::i2c_bus_c &bus;
-        uint8_t address;
-        uint16_t pixels[32][24];
-        /**
-         * Reads a register
-         *
-         * @param uint16_t internal address of the chip
-         * @return uint16_t read data.
-         * */
-        uint16_t read_register(const uint16_t internal_address) const;
-
-        /**
-         * Writes a register.
-         *
-         * @param uint16_t internal_address of the chip.
-         * @param uint16_t data to be written*/
-        void write_register(const uint16_t internal_address,
-                            const uint16_t data) const;
-
         /**
          * Gets a subpage from the chip and stores it into pixels[][]
          * This is pure raw data and needs to be processed.
@@ -45,6 +25,7 @@ namespace r2d2::thermal_camera {
          * */
         void toggle_nth_bit(uint16_t &source, const uint8_t n,
                             const uint8_t to) const;
+
         // Default address of the MLX90460
         static constexpr uint8_t I2C_ADDRESS = 0x33;
 
@@ -93,7 +74,7 @@ namespace r2d2::thermal_camera {
          *
          * @param reading_pattern
          * */
-        void set_reading_pattern(const reading_pattern &pattern);
+        void set_reading_pattern(const reading_pattern &pattern) const;
 
         // Max refresh rate of the chip
         static constexpr uint16_t MAX_REFRESH_RATE = 64;
