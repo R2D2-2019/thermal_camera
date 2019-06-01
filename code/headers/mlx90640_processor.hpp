@@ -1,6 +1,7 @@
 #pragma once
 
-#include <i2c_bus.hpp>
+#include <array>
+#include <mlx90640_i2c.hpp>
 
 namespace r2d2::thermal_camera {
     /** MLX90640 16 bits registers
@@ -20,45 +21,39 @@ namespace r2d2::thermal_camera {
     // This class is responsible for all calculations & includes all math.
     class mlx90640_processor_c {
     private:
+        // i2c bus with (internal) read- and write_register operations.
+        mlx90640_i2c_c &bus;
+
+        // Pixel array
+        std::array<std::array<uint16_t, 32>, 24> pixels;
+
         /**
          * By default this is 33. But should be 3.3V. This is times 10 to
          * prevent floating point values. A division by 10 will be necessary
          * when calculating with this value.
          * */
         static constexpr uint8_t VDD0 = 33;
-
-    protected:
-        i2c::i2c_bus_c &bus;
-        uint8_t address;
-        uint16_t pixels[32][24];
         /**
-         * Reads a register
-         *
-         * @param uint16_t internal address of the chip
-         * @return uint16_t read data.
+         * Reads a block of memory (pixel values) from the chip and inserts it
+         * into pixels[][].
          * */
-        uint16_t read_register(const uint16_t internal_address) const;
+        void set_and_read_raw_pixels();
 
-        /**
-         * Writes a register.
-         *
-         * @param uint16_t internal_address of the chip.
-         * @param uint16_t data to be written*/
-        void write_register(const uint16_t internal_address,
-                            const uint16_t data) const;
+    public:
+        mlx90640_processor_c(mlx90640_i2c_c &bus);
 
         /**
          * Gets the VDD sensor parameters
          *
-         * @return in16_t
+         * @return int16_t
          * */
         int16_t get_delta_V();
 
         /**
          * Gets the GAIN coefficient
+         *
+         * @return in16_t
          * */
         int16_t get_gain();
-
-        mlx90640_processor_c(i2c::i2c_bus_c &bus, const uint8_t address);
     };
 } // namespace r2d2::thermal_camera

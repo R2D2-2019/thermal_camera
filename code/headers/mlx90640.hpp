@@ -1,19 +1,26 @@
 #pragma once
 
 #include <i2c_bus.hpp>
+#include <mlx90640_i2c.hpp>
 #include <mlx90640_processor.hpp>
 
 namespace r2d2::thermal_camera {
 
     enum class reading_pattern { INTERLEAVED_MODE, CHESS_PATTERN_MODE };
 
-    class mlx90640_c : public mlx90640_processor_c {
+    class mlx90640_c {
     private:
         /**
-         * Gets a subpage from the chip and stores it into pixels[][]
-         * This is pure raw data and needs to be processed.
+         * i2c bus with read and write operations specially implemented for this
+         * chip.
          * */
-        void set_raw_pixels();
+        mlx90640_i2c_c mlx_i2c_bus;
+
+        /**
+         * This object is responsible for all calulations. Best to keep it
+         * seperate.
+         * */
+        mlx90640_processor_c mlx_processor;
 
         /**
          * Changes nth bit to to in source.
@@ -26,20 +33,19 @@ namespace r2d2::thermal_camera {
         void toggle_nth_bit(uint16_t &source, const uint8_t n,
                             const uint8_t to) const;
 
-        // Default address of the MLX90460
-        static constexpr uint8_t I2C_ADDRESS = 0x33;
+        // mlx90640 default i2c address.
+        static const uint16_t DEFAULT_REGISTER = 0x33;
 
     public:
         /**
          * MLX90640 constructor.
          *
          * @param i2c_bus_c
-         * @param uint16_t refresh_rate (in Hz) default set to 2. Valid values
-         * are (Hz): 64, 32, 16, 8, 4, 2, 1.
          * @param uint8_t address of the device. Default set with 0x33.
          * */
-        mlx90640_c(i2c::i2c_bus_c &bus, const uint16_t refresh_rate = 2,
-                   const uint8_t address = I2C_ADDRESS);
+        mlx90640_c(i2c::i2c_bus_c &bus,
+                   const uint8_t address = DEFAULT_REGISTER);
+
         /**
          * Sets the refresh rate in Hz of the camera.
          *
@@ -55,6 +61,7 @@ namespace r2d2::thermal_camera {
          * @return uint16_t refresh rate in Hz.
          * */
         uint16_t get_refresh_rate() const;
+
         /**
          * Checks wether a new data set (subpage/frame) is available, and sets
          * the appropriate internal bit to 0 again.
@@ -62,21 +69,21 @@ namespace r2d2::thermal_camera {
          * @return true if new data is available, false otherwise.
          * */
         bool frame_available() const;
-        // Max refresh rate.
 
         /**
          * Sets the reading pattern of the chip. Interleaved (TV) mode or Chess
          * pattern mode. When chess pattern mode is selected, pixels in the row
-         * 0, 2, 4, 6, 8, 10 etc are read first, then 1, . In Interleaved mode,
-         * pixels in the column 0, 2, 4, 6, 8, 10 etc are read first. Then 1, 3,
-         * 5 etc. Chess pattern is default on the chip and is preffered since
-         * this results in better fixed pattern noise behaviour of the sensor.
+         * 0, 2, 4, 6, 8, 10 etc are read first, then 1, 3, 5, 7 ... n etc. In
+         * Interleaved mode, pixels in the column 0, 2, 4, 6, 8, 10 ... n etc
+         * are read first. Then 1, 3, 5 ... n etc. Chess pattern is default on
+         * the chip and is preferred since this results in better fixed pattern
+         * noise behaviour of the sensor.
          *
-         * @param reading_pattern
+         * @param reading_pattern enumeration with two values.
          * */
         void set_reading_pattern(const reading_pattern &pattern) const;
 
-        // Max refresh rate of the chip
+        // Max refresh rate of the chip in Hz
         static constexpr uint16_t MAX_REFRESH_RATE = 64;
     };
 
