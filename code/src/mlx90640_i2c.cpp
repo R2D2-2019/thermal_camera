@@ -14,8 +14,8 @@ namespace r2d2::thermal_camera {
 
     void mlx90640_i2c_c::write_register(const uint16_t internal_address,
                                         const uint16_t data) const {
-        uint8_t array_data[] = {static_cast<uint8_t>(data),
-                                static_cast<uint8_t>(data >> 8)};
+        uint8_t array_data[] = {static_cast<uint8_t>(data & 0xFF),
+                                static_cast<uint8_t>((data >> 8) & 0xFF)};
         bus.write(address, array_data, 2, internal_address, 2);
     }
 } // namespace r2d2::thermal_camera
