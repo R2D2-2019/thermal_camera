@@ -82,7 +82,7 @@ namespace r2d2::thermal_camera {
          * @param uint16_t minus - the value 'value' gets reduced by.
          * */
         void apply_treshold(int &value, const uint16_t exceeds,
-                            const uint16_t minus) const;
+                            const int minus) const;
         /**
          * Reads a register, extracts the data and applies a treshold on it.
          * See apply_treshold and extract_data functions for the parameter info.
@@ -91,8 +91,7 @@ namespace r2d2::thermal_camera {
          * */
         int get_compensated_data(const uint16_t reg_addr,
                                  const uint16_t and_bits, const uint8_t shifted,
-                                 const uint16_t exceeds,
-                                 const uint16_t minus) const;
+                                 const uint16_t exceeds, const int minus) const;
 
     public:
         mlx90640_processor_c(mlx90640_i2c_c &bus);

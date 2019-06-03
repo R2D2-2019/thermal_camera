@@ -27,7 +27,7 @@ namespace r2d2::thermal_camera {
 
     void mlx90640_processor_c::apply_treshold(int &value,
                                               const uint16_t exceeds,
-                                              const uint16_t minus) const {
+                                              const int minus) const {
         if (value > exceeds) {
             value -= minus;
         }
@@ -37,7 +37,7 @@ namespace r2d2::thermal_camera {
                                                    const uint16_t and_bits,
                                                    const uint8_t shifted,
                                                    const uint16_t exceeds,
-                                                   const uint16_t minus) const {
+                                                   const int minus) const {
         int data;
         data = extract_data(reg_addr, and_bits, shifted);
         apply_treshold(data, exceeds, minus);

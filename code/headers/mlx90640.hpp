@@ -1,19 +1,25 @@
 #pragma once
 
 #include <i2c_bus.hpp>
+#include <mlx90640_i2c.hpp>
 #include <mlx90640_processor.hpp>
 
 namespace r2d2::thermal_camera {
 
     enum class reading_pattern { INTERLEAVED_MODE, CHESS_PATTERN_MODE };
 
-    class mlx90640_c : public mlx90640_processor_c {
+    class mlx90640_c {
     private:
-        /**
-         * Gets a subpage from the chip and stores it into pixels[][]
-         * This is pure raw data and needs to be processed.
+        /*
+         * i2c bus with read and write operations specially implemented for this
+         * chip.
          * */
-        void set_raw_pixels();
+        mlx90640_i2c_c mlx_i2c_bus;
+        /**
+         * This object is responsible for all calulations. Best to keep it
+         * seperate.
+         * */
+        mlx90640_processor_c mlx_processor;
 
         /**
          * Changes nth bit to to in source.
@@ -38,8 +44,7 @@ namespace r2d2::thermal_camera {
          * are (Hz): 64, 32, 16, 8, 4, 2, 1.
          * @param uint8_t address of the device. Default set with 0x33.
          * */
-        mlx90640_c(i2c::i2c_bus_c &bus, const uint16_t refresh_rate = 2,
-                   const uint8_t address = I2C_ADDRESS);
+        mlx90640_c(i2c::i2c_bus_c &bus, const uint8_t address = I2C_ADDRESS);
         /**
          * Sets the refresh rate in Hz of the camera.
          *
