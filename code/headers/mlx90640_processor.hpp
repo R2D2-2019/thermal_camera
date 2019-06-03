@@ -102,12 +102,14 @@ namespace r2d2::thermal_camera {
         /**
          * Gets the VDD sensor parameters
          *
-         * @return int16_t
+         * @return float
          * */
         float get_Vdd();
 
         /**
          * Gets the ambient temperature of the pixels
+         *
+         * @return float
          * */
         float get_Ta() const;
 
@@ -115,6 +117,8 @@ namespace r2d2::thermal_camera {
          * Gets the gain parameter.Please note that this value is updated every
          * frame and it is the same for all pixels including CP regardless the
          * subpage number
+         *
+         * @return float
          * */
         float get_gain() const;
     };
