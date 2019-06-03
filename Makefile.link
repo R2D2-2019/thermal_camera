@@ -8,16 +8,9 @@
 # 
 #############################################################################
 
-#add I2C_library
-I2C               ?= ../../../libraries/I2C_library
-include $(I2C)/Makefile.inc
 
 # add Catch
 SEARCH            += ../../../libraries/Catch2/single_include/catch2
-
-#add I2C_library
-I2C               ?= ../../../libraries/I2C_library
-include              $(I2C)/Makefile.inc
 
 # add internal communication module
 internal_comm 	  ?= ../../../libraries/internal_communication
@@ -32,4 +25,3 @@ BMPTK := ../../../programs/bmptk
 
 # Defer to the bmptk/Makefile.inc to do the work
 include $(BMPTK)/Makefile.inc
-
