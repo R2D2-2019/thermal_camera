@@ -45,14 +45,14 @@ namespace r2d2::thermal_camera {
     }
 
     float mlx90640_processor_c::get_Vdd() {
-        Kvdd = get_compensated_data(EE_VDD_PIX, 0xFF00, 12, 127, 256);
+        Kvdd = get_compensated_data(EE_VDD_PIX, 0xFF00, 8, 127, 256);
         Kvdd *= 32;
 
         Vdd25 = extract_data(EE_VDD_PIX, 0x00FF, 0);
         Vdd25 = (Vdd25 - 256) * 32 - 8192;
 
-        int ram_vdd_pix =
-            get_compensated_data(RAM_VDD_PIX, 0xFFFF, 0, 32767, 65536);
+        int ram_vdd_pix = bus.read_register(RAM_VDD_PIX);
+        apply_treshold(ram_vdd_pix, 32767, 65536);
 
         uint8_t res_cor = get_resolution_correlation();
         float Vdd = ((res_cor * ram_vdd_pix - Vdd25) / Kvdd) + VDD0;
@@ -70,7 +70,8 @@ namespace r2d2::thermal_camera {
         float KTptat = static_cast<float>(data);
         KTptat /= 8;
 
-        data = get_compensated_data(RAM_VDD_PIX, 0xFFFF, 0, 32767, 65536);
+        data = bus.read_register(RAM_VDD_PIX);
+        apply_treshold(data, 32767, 65536);
         float delta_V = static_cast<float>(data);
         delta_V = (delta_V - Vdd25) / Kvdd;
 
