@@ -44,7 +44,7 @@ namespace r2d2::thermal_camera {
         return data;
     }
 
-    int16_t mlx90640_processor_c::get_Vdd() {
+    float mlx90640_processor_c::get_Vdd() {
         Kvdd = get_compensated_data(EE_VDD_PIX, 0xFF00, 12, 127, 256);
         Kvdd *= 32;
 

@@ -101,7 +101,7 @@ namespace r2d2::thermal_camera {
          *
          * @return int16_t
          * */
-        int16_t get_Vdd();
+        float get_Vdd();
 
         /**
          * Gets the ambient temperature of the pixels
