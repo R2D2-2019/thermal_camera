@@ -5,7 +5,8 @@
 #include <mlx90640_i2c.hpp>
 
 namespace r2d2::thermal_camera {
-    /** MLX90640 16 bits registers
+    /**
+     * MLX90640 16 bits registers
      * INTERNAL means internal register.
      * EE means EEPROM (Electric Erasable Programmable Read-Only)
      * RAM means just RAM (Random Acces Memory)

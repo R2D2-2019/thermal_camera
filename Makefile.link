@@ -8,6 +8,9 @@
 # 
 #############################################################################
 
+#add I2C_library
+I2C               ?= ../../../libraries/I2C_library
+include $(I2C)/Makefile.inc
 
 # add Catch
 SEARCH            += ../../../libraries/Catch2/single_include/catch2
