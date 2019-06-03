@@ -22,7 +22,7 @@ namespace r2d2::thermal_camera {
         mlx90640_processor_c mlx_processor;
 
         /**
-         * Changes nth bit to to in source.
+         * Changes nth bit to 'to' in source.
          *
          * @param int source. The to be changed value.
          * @param int n. The nth bit to be toggled.
@@ -40,8 +40,6 @@ namespace r2d2::thermal_camera {
          * MLX90640 constructor.
          *
          * @param i2c_bus_c
-         * @param uint16_t refresh_rate (in Hz) default set to 2. Valid values
-         * are (Hz): 64, 32, 16, 8, 4, 2, 1.
          * @param uint8_t address of the device. Default set with 0x33.
          * */
         mlx90640_c(i2c::i2c_bus_c &bus, const uint8_t address = I2C_ADDRESS);
@@ -72,10 +70,11 @@ namespace r2d2::thermal_camera {
         /**
          * Sets the reading pattern of the chip. Interleaved (TV) mode or Chess
          * pattern mode. When chess pattern mode is selected, pixels in the row
-         * 0, 2, 4, 6, 8, 10 etc are read first, then 1, . In Interleaved mode,
-         * pixels in the column 0, 2, 4, 6, 8, 10 etc are read first. Then 1, 3,
-         * 5 etc. Chess pattern is default on the chip and is preffered since
-         * this results in better fixed pattern noise behaviour of the sensor.
+         * 0, 2, 4, 6, 8, 10 etc are read first, then 1, 3, 5, 7. In Interleaved
+         * mode, pixels in the column 0, 2, 4, 6, 8, 10 etc are read first. Then
+         * 1, 3, 5 etc. Chess pattern is default on the chip and is preferred
+         * since this results in better fixed pattern noise behaviour of the
+         * sensor.
          *
          * @param reading_pattern
          * */

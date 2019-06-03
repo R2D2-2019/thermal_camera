@@ -83,9 +83,8 @@ namespace r2d2::thermal_camera {
         int Vbe = bus.read_register(RAM_TA_VBE);
         apply_treshold(Vbe, 32767, 65536);
 
-        int alpha_ptat_ee = extract_data(EE_SCALE_OCC, 0xF000, 12);
-
-        int alpha_ptat = (alpha_ptat_ee / 4) + 8;
+        int alpha_ptat = extract_data(EE_SCALE_OCC, 0xF000, 12);
+        alpha_ptat = (alpha_ptat / 4) + 8;
 
         float Vptat_art = (Vptat / (Vptat * alpha_ptat + Vbe)) * 262144;
         float Ta =

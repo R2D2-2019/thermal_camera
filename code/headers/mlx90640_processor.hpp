@@ -46,13 +46,14 @@ namespace r2d2::thermal_camera {
          * Supply voltage in Volts
          * */
         static constexpr float VDD0 = 3.3;
-        // Kvdd
+        // Kvdd, required for calculations
         int Kvdd;
+        // Kvdd25, required for calculations
         int Vdd25;
 
         /**
          * Reads a block of memory (pixel values) from the chip and inserts it
-         * into pixels[][].
+         * into pixels.
          * */
         void set_and_read_raw_pixels();
 
@@ -84,6 +85,7 @@ namespace r2d2::thermal_camera {
          * */
         void apply_treshold(int &value, const uint16_t exceeds,
                             const int minus) const;
+
         /**
          * Reads a register, extracts the data and applies a treshold on it.
          * See apply_treshold and extract_data functions for the parameter info.
