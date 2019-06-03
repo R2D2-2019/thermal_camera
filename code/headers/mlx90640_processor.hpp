@@ -15,7 +15,7 @@ namespace r2d2::thermal_camera {
         INTERNAL_STATUS_REGISTER = 0x8000,
 
         RAM_TA_VBE = 0x0700,
-        RAM_GAIN = 0x70A,
+        RAM_GAIN = 0x070A,
         RAM_VDD_PIX = 0x072A,
         RAM_TA_PTAT = 0x0720,
 
