@@ -10,10 +10,9 @@ namespace r2d2::thermal_camera {
     }
 
     uint8_t mlx90640_processor_c::get_resolution_correlation() const {
-        int16_t resolution_ee =
-            static_cast<int16_t>(extract_data(EE_RESOLUTION, 0x3000, 12));
-        int16_t resolution_reg = static_cast<int16_t>(
-            extract_data(INTERNAL_CONTROL_REGISTER, 0xFFFF, 10));
+        uint16_t resolution_ee = extract_data(EE_RESOLUTION, 0x3000, 12);
+        uint16_t resolution_reg =
+            extract_data(INTERNAL_CONTROL_REGISTER, 0xFFFF, 10);
         resolution_ee = std::pow(2, resolution_ee);
         resolution_reg = std::pow(2, resolution_reg);
         return static_cast<uint8_t>(resolution_ee / resolution_reg);
@@ -38,8 +37,7 @@ namespace r2d2::thermal_camera {
                                                    const uint8_t shifted,
                                                    const uint16_t exceeds,
                                                    const int minus) const {
-        int data;
-        data = extract_data(reg_addr, and_bits, shifted);
+        int data = extract_data(reg_addr, and_bits, shifted);
         apply_treshold(data, exceeds, minus);
         return data;
     }
@@ -101,7 +99,7 @@ namespace r2d2::thermal_camera {
         int ram_gain = bus.read_register(RAM_GAIN);
         apply_treshold(ram_gain, 32767, 65536);
 
-        return static_cast<float>(gain / ram_gain);
+        return static_cast<float>(gain) / ram_gain;
     }
 
 } // namespace r2d2::thermal_camera

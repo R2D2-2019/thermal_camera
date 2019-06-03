@@ -114,7 +114,7 @@ namespace r2d2::thermal_camera {
         /**
          * Gets the gain parameter.Please note that this value is updated every
          * frame and it is the same for all pixels including CP regardless the
-         * subpage number.
+         * subpage number
          * */
         float get_gain() const;
     };
