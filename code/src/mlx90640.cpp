@@ -38,6 +38,7 @@ namespace r2d2::thermal_camera {
             // toggle anything back. We can leave as it was.
             return false;
         }
+        // mlx_processor.set_Kgain();
         // Otherwise, mark bit as read by setting it back to 0
         toggle_nth_bit(data, 3, 0);
         mlx_i2c_bus.write_register(INTERNAL_STATUS_REGISTER, data);

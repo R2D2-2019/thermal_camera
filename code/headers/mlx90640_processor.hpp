@@ -14,17 +14,22 @@ enum : uint16_t {
     INTERNAL_CONTROL_REGISTER = 0x800D,
     INTERNAL_STATUS_REGISTER = 0x8000,
 
+    RAM_PAGE_START = 0x0400,
     RAM_TA_VBE = 0x0700,
     RAM_GAIN = 0x070A,
     RAM_VDD_PIX = 0x072A,
     RAM_TA_PTAT = 0x0720,
 
+    EE_SCALE_OCC = 0x2410,
+    EE_PIX_OS_AVERAGE = 0x2411,
+    EE_OCC_ROWS_START = 0x2412,
+    EE_OCC_COLS_START = 0x2418,
     EE_GAIN = 0x2430,
     EE_PTAT25 = 0x2431,
+    EE_KV_KT_PTAT = 0x2432,
     EE_VDD_PIX = 0x2433,
-    EE_SCALE_OCC = 0x2410,
     EE_RESOLUTION = 0x2438,
-    EE_KV_KT_PTAT = 0x2432
+    EE_OFFSET_PIX = 0x243F
 };
 
 namespace r2d2::thermal_camera {
@@ -46,10 +51,15 @@ namespace r2d2::thermal_camera {
          * Supply voltage in Volts
          * */
         static constexpr float VDD0 = 3.3;
+
         // Kvdd, required for calculations
         int Kvdd;
+
         // Kvdd25, required for calculations
         int Vdd25;
+
+        // Kgain for gain compenstation
+        float Kgain;
 
         /**
          * Reads a block of memory (pixel values) from the chip and inserts it
@@ -96,30 +106,60 @@ namespace r2d2::thermal_camera {
                                  const uint16_t and_bits, const uint8_t shifted,
                                  const uint16_t exceeds, const int minus) const;
 
+        /**
+         * Performs a read on the i2c bus, checks wether the read value gets
+         * higher than 32767. If so, it gets reduced by 65536. This is when no
+         * shifting or other bitwise operands are necessary.
+         *
+         * See apply_treshold and extract_data functions for the parameter info.
+         * */
+        int read_and_apply_treshold(const uint16_t addr) const;
+
+        /**
+         * Checks wether row is higher than 32 and col higher than 24.
+         * If so. row = 32 and/or col = 24.
+         * */
+        void check_within_limits(uint8_t &row, uint8_t &col) const;
+
     public:
         mlx90640_processor_c(mlx90640_i2c_c &bus);
 
         /**
-         * Gets the VDD sensor parameters
+         * Gets the VDD sensor parameters. Common for all pixels.
          *
          * @return float
          * */
         float get_Vdd();
 
         /**
-         * Gets the ambient temperature of the pixels
+         * Gets the ambient temperature of the pixels. Common for all pixels.
          *
          * @return float
          * */
         float get_Ta() const;
 
         /**
-         * Gets the gain parameter.Please note that this value is updated every
+         * Sets the gain parameter. Please note that this value is updated every
          * frame and it is the same for all pixels including CP regardless the
          * subpage number
-         *
-         * @return float
          * */
-        float get_gain() const;
+        void set_Kgain();
+
+        /**
+         * The first step of the data processing on raw IR data is always the
+         * gain compensation, regardless of pixel or subpage number.
+         *
+         * @param int row - the selected row. Value between 1 and 24
+         * @param int col - the selected column. Value between 1 and 32
+         * @return float - the compensated processed gain compensation
+         * */
+        float apply_pix_gain(const uint8_t row, const uint8_t col) const;
+
+        /**
+         * Returns the resoting offset.
+         *
+         * @return int - the offset
+         * */
+        int get_offset_calculation(const uint8_t row, const uint8_t col) const;
     };
 } // namespace r2d2::thermal_camera

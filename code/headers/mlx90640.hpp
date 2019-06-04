@@ -58,7 +58,7 @@ namespace r2d2::thermal_camera {
          * @return uint16_t refresh rate in Hz.
          * */
         uint16_t get_refresh_rate() const;
-		
+
         /**
          * Checks wether a new data set (subpage/frame) is available, and sets
          * the appropriate internal bit to 0 again.
