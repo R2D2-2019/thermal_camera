@@ -55,11 +55,11 @@ namespace r2d2::thermal_camera {
                                                    uint8_t &col) const {
         if (row > 24) {
             row = 24;
+        } else if (row == 0) {
+            row = 1;
         }
         if (col > 32) {
             col = 32;
-        } else if (row == 0) {
-            row = 1;
         } else if (col == 0) {
             col = 1;
         }
@@ -114,7 +114,7 @@ namespace r2d2::thermal_camera {
         Kgain = static_cast<float>(gain) / ram_gain;
     }
 
-    float mlx90640_processor_c::apply_pix_gain(uint8_t row, uint8_t col) const {
+    float mlx90640_processor_c::get_pix_gain(uint8_t row, uint8_t col) const {
         check_within_limits(row, col);
         uint16_t addr = row * 32 + col + RAM_PAGE_START;
         int data = read_and_apply_treshold(addr);

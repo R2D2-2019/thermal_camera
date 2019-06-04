@@ -153,7 +153,7 @@ namespace r2d2::thermal_camera {
          * @param int col - the selected column. Value between 1 and 32
          * @return float - the compensated processed gain compensation
          * */
-        float apply_pix_gain(const uint8_t row, const uint8_t col) const;
+        float get_pix_gain(const uint8_t row, const uint8_t col) const;
 
         /**
          * Returns the resoting offset.
