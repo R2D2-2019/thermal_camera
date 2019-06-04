@@ -125,9 +125,9 @@ namespace r2d2::thermal_camera {
                                                      uint8_t col) const {
         check_within_limits(row, col);
         int offset_average = read_and_apply_treshold(EE_PIX_OS_AVERAGE);
-        int offset_row_col = EE_OFFSET_PIX + ((row - 1) * 32) + col;
-        offset_row_col =
-            get_compensated_data(offset_row_col, 0xFC00, 10, 31, 64);
+        int offset_addr = EE_OFFSET_PIX + ((row - 1) * 32) + col;
+        int offset_row_col =
+            get_compensated_data(offset_addr, 0xFC00, 10, 31, 64);
 
         uint16_t row_addr = EE_OCC_ROWS_START + (row - 1) / 4;
         uint16_t col_addr = EE_OCC_COLS_START + (col - 1) / 4;
@@ -147,7 +147,19 @@ namespace r2d2::thermal_camera {
                          Occ_row_x * std::pow(2, Occ_scale_row) +
                          Occ_col_x * std::pow(2, Occ_scale_col) +
                          offset_row_col * std::pow(2, Occ_scale_rem);
+
+        float IR_data_compensation =
+            get_IR_data_compensation(row, col, offset_addr);
+
         return Pix_OS_ref;
+    }
+
+    float
+    mlx90640_processor_c::get_IR_data_compensation(uint8_t row, uint8_t col,
+                                                   int offset_addr) const {
+        int Kta_ee = get_compensated_data(offset_addr, 0x000E, 1, 3, 8);
+        uint8_t row_odd = row % 2;
+        uint8_t col_odd = col % 2;
     }
 
 } // namespace r2d2::thermal_camera

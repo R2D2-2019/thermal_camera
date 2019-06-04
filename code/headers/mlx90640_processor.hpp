@@ -161,5 +161,8 @@ namespace r2d2::thermal_camera {
          * @return int - the offset
          * */
         int get_offset_calculation(const uint8_t row, const uint8_t col) const;
+
+        float get_IR_data_compensation(uint8_t row, uint8_t col,
+                                       int offset_addr) const;
     };
 } // namespace r2d2::thermal_camera
