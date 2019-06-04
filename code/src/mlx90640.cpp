@@ -19,7 +19,7 @@ namespace r2d2::thermal_camera {
 
     void mlx90640_c::set_refresh_rate(uint16_t refresh_rate) const {
         if (refresh_rate > MAX_REFRESH_RATE) {
-            return;
+            refresh_rate = MAX_REFRESH_RATE;
         }
         refresh_rate = static_cast<uint16_t>(1 + std::log2(refresh_rate));
         uint16_t data = mlx_i2c_bus.read_register(INTERNAL_CONTROL_REGISTER);
