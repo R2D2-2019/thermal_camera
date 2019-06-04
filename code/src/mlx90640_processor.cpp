@@ -7,6 +7,7 @@ namespace r2d2::thermal_camera {
     }
 
     void mlx90640_processor_c::set_and_read_raw_pixels() {
+        // TODO: To be implemented yet
     }
 
     uint8_t mlx90640_processor_c::get_resolution_correlation() const {
