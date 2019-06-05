@@ -152,7 +152,7 @@ namespace r2d2::thermal_camera {
     }
 
     float mlx90640_processor_c::get_pix_gain(int row, int col) const {
-        const uint16_t addr = row * 32 + col + RAM_PAGE_START;
+        const uint16_t addr = ((row - 1) * 32 + (col - 1)) + RAM_PAGE_START;
         const int data = read_and_apply_treshold(addr);
         return data * Kgain; // = pix_gain, returns a float since Kgain is float
     }
