@@ -33,7 +33,7 @@ namespace r2d2::thermal_camera {
     bool mlx90640_c::frame_available() const {
         uint16_t data = mlx_i2c_bus.read_register(INTERNAL_STATUS_REGISTER);
         // Checks wether the 3rd bit is 1 or 0.
-        const bool frame_available = (data >> 2) & 1;
+        const bool frame_available = (data >> 3) & 1;
         if (!frame_available) {
             // frame available is false, so we don't need to
             // toggle anything back. We can leave as it was.
