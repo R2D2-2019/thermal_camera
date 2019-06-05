@@ -7,6 +7,6 @@ int main() {
     // kill the watchdog
     WDT->WDT_MR = WDT_MR_WDDIS;
     hwlib::wait_ms(1000);
-    i2c_bus_c bus(i2c_bus_c::interface::interface_1, 1'000'000);
+    i2c_bus_c bus(i2c_bus_c::interface::interface_1, 400'000);
     mlx90640_c thermal_cam(bus);
 }

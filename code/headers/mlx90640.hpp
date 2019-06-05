@@ -30,7 +30,7 @@ namespace r2d2::thermal_camera {
          * to. Either has to be a 0 or a 1.
          * */
         void toggle_nth_bit(uint16_t &source, const uint8_t n,
-                            const uint8_t to) const;
+                            const uint8_t to) const volatile;
 
         // Default address of the MLX90460
         static constexpr uint8_t I2C_ADDRESS = 0x33;

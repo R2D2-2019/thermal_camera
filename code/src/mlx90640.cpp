@@ -8,13 +8,14 @@ namespace r2d2::thermal_camera {
     }
 
     void mlx90640_c::toggle_nth_bit(uint16_t &source, const uint8_t n,
-                                    const uint8_t to) const {
+                                    const uint8_t to) const volatile {
         source = (source & ~(1U << n)) | (to << n);
     }
 
     uint16_t mlx90640_c::get_refresh_rate() const {
         uint16_t rate = mlx_i2c_bus.read_register(INTERNAL_CONTROL_REGISTER);
         rate >>= 7 & 7;
+        hwlib::cout << hwlib::bin << rate << hwlib::endl;
         return 1 << (rate - 1);
     }
 
@@ -32,9 +33,8 @@ namespace r2d2::thermal_camera {
 
     bool mlx90640_c::frame_available() const {
         uint16_t data = mlx_i2c_bus.read_register(INTERNAL_STATUS_REGISTER);
-        // Checks wether the 3rd bit is 1 or 0.
-        const bool frame_available = (data >> 3) & 1;
-        if (!frame_available) {
+        const volatile uint16_t frame_available = ((data >> 3) & 0x1);
+        if (frame_available == 0) {
             // frame available is false, so we don't need to
             // toggle anything back. We can leave as it was.
             return false;
