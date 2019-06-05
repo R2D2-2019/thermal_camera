@@ -1,7 +1,5 @@
 #pragma once
 
-#include <array>
-#include <cmath>
 #include <mlx90640_i2c.hpp>
 
 /**
@@ -28,7 +26,9 @@ enum : uint16_t {
     EE_PTAT25 = 0x2431,
     EE_KV_KT_PTAT = 0x2432,
     EE_VDD_PIX = 0x2433,
-    EE_RESOLUTION = 0x2438,
+    EE_KVG_AVG = 0x2434,
+    EE_KTA_AVG = 0x2436,
+    EE_CTRL_CALIB_KV_KTA_SCALE = 0x2438,
     EE_OFFSET_PIX = 0x243F
 };
 
@@ -39,18 +39,21 @@ namespace r2d2::thermal_camera {
      * rounding will take place that, at the end of all calculations, will be
      * very different from the actual desired result. Please see the datasheet.
      * */
+
     class mlx90640_processor_c {
     private:
         // i2c bus with (internal) read- and write_register operations.
         mlx90640_i2c_c &bus;
 
-        // Pixel array
-        std::array<std::array<uint16_t, 32>, 24> pixels;
-
         /**
          * Supply voltage in Volts
          * */
         static constexpr float VDD0 = 3.3;
+
+        /**
+         * TA0, datasheets refers to 25.
+         * */
+        static constexpr uint8_t TA0 = 25;
 
         // Kvdd, required for calculations
         int Kvdd;
@@ -58,14 +61,17 @@ namespace r2d2::thermal_camera {
         // Kvdd25, required for calculations
         int Vdd25;
 
+        // Vdd required for calculations
+        float Vdd;
+
         // Kgain for gain compenstation
         float Kgain;
 
-        /**
-         * Reads a block of memory (pixel values) from the chip and inserts it
-         * into pixels.
-         * */
-        void set_and_read_raw_pixels();
+        // Kta, required for calculations
+        float Kta_row_col;
+
+        // Ta, ambient temp, required for calculations
+        float Ta;
 
         /**
          * The device is calibrated with default resolution setting = 2
@@ -82,6 +88,7 @@ namespace r2d2::thermal_camera {
          * with and_bits.
          * @param uint16_t shifted - shifts the bits with shifted amount.
          * */
+
         uint16_t extract_data(const uint16_t reg_addr, const uint16_t and_bits,
                               const uint8_t shifted) const;
 
@@ -93,6 +100,7 @@ namespace r2d2::thermal_camera {
          * @param uint16_t exceeds - the value it may not exceed.
          * @param uint16_t minus - the value 'value' gets reduced by.
          * */
+
         void apply_treshold(int &value, const uint16_t exceeds,
                             const int minus) const;
 
@@ -119,24 +127,22 @@ namespace r2d2::thermal_camera {
          * Checks wether row is higher than 32 and col higher than 24.
          * If so. row = 32 and/or col = 24.
          * */
-        void check_within_limits(uint8_t &row, uint8_t &col) const;
-
-    public:
-        mlx90640_processor_c(mlx90640_i2c_c &bus);
+        void check_within_limits(int &row, int &col) const;
 
         /**
          * Gets the VDD sensor parameters. Common for all pixels.
          *
          * @return float
          * */
-        float get_Vdd();
+
+        void set_Vdd();
 
         /**
          * Gets the ambient temperature of the pixels. Common for all pixels.
          *
          * @return float
          * */
-        float get_Ta() const;
+        void set_Ta();
 
         /**
          * Sets the gain parameter. Please note that this value is updated every
@@ -144,6 +150,12 @@ namespace r2d2::thermal_camera {
          * subpage number
          * */
         void set_Kgain();
+        /**
+         * Gets the Kv coeffecient
+         *
+         * @return float - Kv
+         * */
+        float get_Kv_coefficient(int row, int col, uint16_t offset_addr);
 
         /**
          * The first step of the data processing on raw IR data is always the
@@ -153,16 +165,16 @@ namespace r2d2::thermal_camera {
          * @param int col - the selected column. Value between 1 and 32
          * @return float - the compensated processed gain compensation
          * */
-        float get_pix_gain(const uint8_t row, const uint8_t col) const;
+        float get_pix_gain(const int row, const int col) const;
+
+    public:
+        mlx90640_processor_c(mlx90640_i2c_c &bus);
 
         /**
          * Returns the resoting offset.
          *
          * @return int - the offset
          * */
-        int get_offset_calculation(const uint8_t row, const uint8_t col) const;
-
-        float get_IR_data_compensation(uint8_t row, uint8_t col,
-                                       int offset_addr) const;
+        float get_offset_calculation(const int row, const int col);
     };
 } // namespace r2d2::thermal_camera
