@@ -9,8 +9,4 @@ int main() {
     hwlib::wait_ms(1000);
     i2c_bus_c bus(i2c_bus_c::interface::interface_1, 1'000'000);
     mlx90640_c thermal_cam(bus);
-    while (true) {
-        int rate = thermal_cam.frame_available();
-        (void)rate;
-    }
 }
