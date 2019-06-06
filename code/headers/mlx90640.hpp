@@ -6,8 +6,6 @@
 
 namespace r2d2::thermal_camera {
 
-    enum class reading_pattern { INTERLEAVED_MODE, CHESS_PATTERN_MODE };
-
     class mlx90640_c {
     private:
         /*
@@ -78,7 +76,14 @@ namespace r2d2::thermal_camera {
          *
          * @param reading_pattern
          * */
-        void set_reading_pattern(const reading_pattern &pattern) const;
+        void set_reading_pattern(const reading_pattern &pattern);
+
+        /**
+         * Gets the reading pattern of the chip.
+         *
+         * @return reading_pattern - the read pattern from the chip.
+         */
+        reading_pattern get_reading_pattern() const;
 
         // Max refresh rate of the chip
         static constexpr uint16_t MAX_REFRESH_RATE = 64;

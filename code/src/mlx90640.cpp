@@ -5,6 +5,7 @@ namespace r2d2::thermal_camera {
 
     mlx90640_c::mlx90640_c(i2c::i2c_bus_c &bus, const uint8_t address)
         : mlx_i2c_bus(bus, address), mlx_processor(mlx_i2c_bus) {
+        mlx_processor.set_reading_pattern(get_reading_pattern());
     }
 
     void mlx90640_c::toggle_nth_bit(uint16_t &source, const uint8_t n,
@@ -14,8 +15,7 @@ namespace r2d2::thermal_camera {
 
     uint16_t mlx90640_c::get_refresh_rate() const {
         uint16_t rate = mlx_i2c_bus.read_register(INTERNAL_CONTROL_REGISTER);
-        rate >>= 7 & 7;
-        hwlib::cout << hwlib::bin << rate << hwlib::endl;
+        rate = (rate >> 7) & 7;
         return 1 << (rate - 1);
     }
 
@@ -39,16 +39,18 @@ namespace r2d2::thermal_camera {
             // toggle anything back. We can leave as it was.
             return false;
         }
-        // mlx_processor.set_Kgain();
         // Otherwise, mark bit as read by setting it back to 0
         toggle_nth_bit(data, 3, 0);
         mlx_i2c_bus.write_register(INTERNAL_STATUS_REGISTER, data);
         return frame_available;
     }
 
-    void mlx90640_c::set_reading_pattern(const reading_pattern &pattern) const {
+    void mlx90640_c::set_reading_pattern(const reading_pattern &pattern) {
         uint16_t data = mlx_i2c_bus.read_register(INTERNAL_CONTROL_REGISTER);
         uint8_t bit;
+
+        mlx_processor.set_reading_pattern(pattern);
+
         switch (pattern) {
         case reading_pattern::CHESS_PATTERN_MODE:
             bit = 1;
@@ -59,8 +61,15 @@ namespace r2d2::thermal_camera {
         default:
             return;
         }
+
         toggle_nth_bit(data, 12, bit);
         mlx_i2c_bus.write_register(INTERNAL_CONTROL_REGISTER, data);
+    }
+
+    reading_pattern mlx90640_c::get_reading_pattern() const {
+        uint16_t data = mlx_i2c_bus.read_register(INTERNAL_CONTROL_REGISTER);
+        data = (data >> 12) & 1;
+        return static_cast<reading_pattern>(data);
     }
 
 } // namespace r2d2::thermal_camera

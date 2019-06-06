@@ -10,10 +10,13 @@ namespace r2d2::thermal_camera {
           Vdd(0.f),
           Kgain(0.f),
           Kta_row_col(0.f),
-          Ta(0.f) {
+          Ta(0.f),
+          pix_gain_cp_sp0(0.f),
+          pix_gain_cp_sp1(0.f) {
         set_Kgain();
         set_Ta();
         set_Vdd();
+        set_cp_gain();
     }
 
     uint8_t mlx90640_processor_c::get_resolution_correlation() const {
@@ -144,7 +147,7 @@ namespace r2d2::thermal_camera {
         const uint8_t shift = row_odd * 4 + col_odd * 8;
         // Results can be: 0xF000, 0x0F00, 0x00F0, 0x000F
         const uint16_t Kv_mask = 0x000F << shift;
-        float Kv = get_compensated_data(EE_KVG_AVG, Kv_mask, shift, 7, 16);
+        float Kv = get_compensated_data(EE_KV_AVG, Kv_mask, shift, 7, 16);
         const int Kv_scale =
             extract_data(EE_CTRL_CALIB_KV_KTA_SCALE, 0x0F00, 8);
         Kv /= std::pow(2, Kv_scale);
@@ -155,6 +158,37 @@ namespace r2d2::thermal_camera {
         const uint16_t addr = ((row - 1) * 32 + (col - 1)) + RAM_PAGE_START;
         const int data = read_and_apply_treshold(addr);
         return data * Kgain; // = pix_gain, returns a float since Kgain is float
+    }
+
+    void mlx90640_processor_c::set_cp_gain() {
+        int data;
+
+        data = read_and_apply_treshold(RAM_CP_SP0);
+        pix_gain_cp_sp0 = data * Kgain;
+        // Kgain is floating point
+        data = read_and_apply_treshold(RAM_CP_SP1);
+        pix_gain_cp_sp1 = data * Kgain;
+    }
+
+    void mlx90640_processor_c::apply_IR_gradient_compensation(int row,
+                                                              int col) const {
+        int pixel_number = (row - 1) * 32 + col;
+        int patron =
+            (static_cast<int>((pixel_number - 1) / 32) -
+             static_cast<int>(static_cast<int>((pixel_number - 1) / 32) / 2) *
+                 2);
+
+        switch (pattern) {
+        case reading_pattern::CHESS_PATTERN_MODE:
+            /* If we are in chess pattern mode we need to xor it. */
+            patron = patron ^ ((pixel_number - 1) -
+                               static_cast<int>((pixel_number - 1) / 2) * 2);
+            break;
+        case reading_pattern::INTERLEAVED_MODE:
+            /* However, if we're in interleaved mode, we can leave patron as it
+             * was */
+            break;
+        }
     }
 
     float mlx90640_processor_c::get_offset_calculation(int row, int col) {
@@ -186,11 +220,62 @@ namespace r2d2::thermal_camera {
 
         /* Prevents function from being const*/
         const float Kv = get_Kv_coefficient(row, col, offset_addr);
-
+        /* pix gain returns float */
         const float Pix_Os = get_pix_gain(row, col) -
                              Pix_OS_ref * (1 + Kta_row_col * (Ta - TA0)) *
                                  (1 + Kv * (Vdd - VDD0));
+
+        compensate_cp();
+        apply_IR_gradient_compensation(row, col);
+
         return Pix_Os;
+    }
+
+    void
+    mlx90640_processor_c::set_reading_pattern(const reading_pattern &pattern) {
+        this->pattern = pattern;
+    }
+
+    void mlx90640_processor_c::compensate_cp() {
+        const int off_cp_subpage_0 = get_compensated_data(
+            EE_CP_OFF_DELTA_OFFSET_CP_SP0, 0x03FF, 0, 511, 1024);
+        const int off_cp_subpage_1_delta = get_compensated_data(
+            EE_CP_OFF_DELTA_OFFSET_CP_SP0, 0xFC00, 10, 31, 64);
+        const int off_cp_subpage_1 = off_cp_subpage_0 + off_cp_subpage_1_delta;
+
+        const int Kta_scale_1 =
+            extract_data(EE_CTRL_CALIB_KV_KTA_SCALE, 0x00F0, 4) + 8;
+        const int Kta_cp_ee =
+            get_compensated_data(EE_KV_KTA_CP, 0x00FF, 0, 127, 256);
+
+        const float Kta_cp = // cast float, both are ints
+            static_cast<float>(Kta_cp_ee) / (std::pow(2, Kta_scale_1));
+
+        const int Kv_scale =
+            extract_data(EE_CTRL_CALIB_KV_KTA_SCALE, 0x0F00, 8);
+        const int Kv_cp_ee =
+            get_compensated_data(EE_KV_KTA_CP, 0xFF00, 8, 127, 256);
+        const float Kv_cp =
+            static_cast<float>(Kv_cp_ee) / (std::pow(2, Kv_scale));
+
+        const float constant =
+            (1 + Kta_cp * (Ta - TA0)) * (1 + Kv_cp * (Vdd - VDD0));
+
+        switch (pattern) {
+        case reading_pattern::CHESS_PATTERN_MODE:
+            pix_os_cp_sp0 = pix_gain_cp_sp0 - off_cp_subpage_0 * constant;
+            pix_os_cp_sp1 = pix_gain_cp_sp1 - off_cp_subpage_1 * constant;
+            break;
+        case reading_pattern::INTERLEAVED_MODE:
+            float IL_chess_c1 = static_cast<float>(
+                get_compensated_data(EE_CHESS_CX, 0x003F, 0, 31, 64));
+            IL_chess_c1 /= 16.f;
+            pix_os_cp_sp0 =
+                pix_gain_cp_sp0 - (off_cp_subpage_0 + IL_chess_c1) * constant;
+            pix_os_cp_sp1 =
+                pix_gain_cp_sp1 - (off_cp_subpage_1 + IL_chess_c1) * constant;
+            break;
+        }
     }
 
 } // namespace r2d2::thermal_camera

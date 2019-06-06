@@ -14,6 +14,8 @@ enum : uint16_t {
 
     RAM_PAGE_START = 0x0400,
     RAM_TA_VBE = 0x0700,
+    RAM_CP_SP0 = 0x708,
+    RAM_CP_SP1 = 0x0728,
     RAM_GAIN = 0x070A,
     RAM_VDD_PIX = 0x072A,
     RAM_TA_PTAT = 0x0720,
@@ -26,13 +28,20 @@ enum : uint16_t {
     EE_PTAT25 = 0x2431,
     EE_KV_KT_PTAT = 0x2432,
     EE_VDD_PIX = 0x2433,
-    EE_KVG_AVG = 0x2434,
+    EE_KV_AVG = 0x2434,
+    EE_CHESS_CX = 0x2435,
     EE_KTA_AVG = 0x2436,
     EE_CTRL_CALIB_KV_KTA_SCALE = 0x2438,
-    EE_OFFSET_PIX = 0x243F
+    EE_CP_OFF_DELTA_OFFSET_CP_SP0 = 0x243A,
+    EE_KV_KTA_CP = 0x243B,
+    EE_OFFSET_PIX = 0x243F,
+
 };
 
 namespace r2d2::thermal_camera {
+
+    enum class reading_pattern { INTERLEAVED_MODE, CHESS_PATTERN_MODE };
+
     /**
      * This class is responsible for all calculations & includes all math.
      * Floating point values are used because if we cast it to integer values, a
@@ -44,6 +53,9 @@ namespace r2d2::thermal_camera {
     private:
         // i2c bus with (internal) read- and write_register operations.
         mlx90640_i2c_c &bus;
+
+        // Current reading pattern.
+        reading_pattern pattern;
 
         /**
          * Supply voltage in Volts
@@ -72,6 +84,18 @@ namespace r2d2::thermal_camera {
 
         // Ta, ambient temp, required for calculations
         float Ta;
+
+        // Pixel gain corner sp0
+        float pix_gain_cp_sp0;
+
+        // Pixel gain corner sp1
+        float pix_gain_cp_sp1;
+
+        // Pixel offset corner sp0
+        float pix_os_cp_sp0;
+
+        // Pixel offset corner sp1
+        float pix_os_cp_sp1;
 
         /**
          * The device is calibrated with default resolution setting = 2
@@ -167,6 +191,22 @@ namespace r2d2::thermal_camera {
          * */
         float get_pix_gain(const int row, const int col) const;
 
+        /**
+         * Gets the compensation of the gain of the cp (corner pixel)
+         *
+         * @return float - the gain for the corner pixels
+         */
+        void set_cp_gain();
+
+        /**
+         * As stated in "Reading patterns" the device can work in two different
+         * readings modes (Chess pattern – the default one and IL (Interleave
+         * mode)). Depending on the device measurement mode and pixelNumber = 1
+         * ... 768 we can define a pattern which will help us to automatically
+         * switch between both subpages.
+         */
+        void apply_IR_gradient_compensation(int row, int col) const;
+
     public:
         mlx90640_processor_c(mlx90640_i2c_c &bus);
 
@@ -176,5 +216,16 @@ namespace r2d2::thermal_camera {
          * @return int - the offset
          * */
         float get_offset_calculation(const int row, const int col);
+
+        /**
+         * Sets the reading pattern. Required, because when a different pattern
+         * is used, a different calculation is required.
+         */
+        void set_reading_pattern(const reading_pattern &pattern);
+
+        /**
+         * Compensates the offset, Ta and VDD of the CP.
+         */
+        void compensate_cp();
     };
 } // namespace r2d2::thermal_camera
