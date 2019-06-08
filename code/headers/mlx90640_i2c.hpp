@@ -1,5 +1,6 @@
 #pragma once
 #include <i2c_bus.hpp>
+#include <registers.hpp>
 
 namespace r2d2::thermal_camera {
     /**
@@ -21,14 +22,15 @@ namespace r2d2::thermal_camera {
          * @param uint16_t internal address of the chip
          * @return uint16_t read data.
          * */
-        uint16_t read_register(const uint16_t internal_address) const;
+        uint16_t read_register(const registers internal_address) const;
 
         /**
          * Writes a register.
          *
          * @param uint16_t internal_address of the chip.
-         * @param uint16_t data to be written*/
-        void write_register(const uint16_t internal_address,
+         * @param uint16_t data to be written
+         * */
+        void write_register(const registers internal_address,
                             const uint16_t data) const;
     };
 } // namespace r2d2::thermal_camera
