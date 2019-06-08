@@ -5,7 +5,7 @@
  * INTERNAL means internal register.
  * EE means EEPROM (Electric Erasable Programmable Read-Only)
  * RAM means just RAM (Random Acces Memory)
- **/
+ */
 enum class registers : uint16_t {
     INTERNAL_CONTROL_REGISTER = 0x800D,
     INTERNAL_STATUS_REGISTER = 0x8000,

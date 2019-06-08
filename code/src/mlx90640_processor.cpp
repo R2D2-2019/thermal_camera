@@ -40,7 +40,7 @@ namespace r2d2::thermal_camera {
         return data;
     }
 
-    /* Page 36 */
+    /* Dataseheet page 36 */
     float mlx90640_processor_c::get_Vdd() {
         Kvdd = get_compensated_data(registers::EE_VDD_PIX, 0xFF00, 8, 127, 256);
         Kvdd *= 32;
@@ -56,7 +56,7 @@ namespace r2d2::thermal_camera {
         return Vdd;
     }
 
-    /* Page 36 to 37 */
+    /* Dataseheet page 36 to 37 */
     float mlx90640_processor_c::get_Ta() const {
         int data;
 
@@ -93,7 +93,7 @@ namespace r2d2::thermal_camera {
 
         return Ta;
     }
-    /* Page 37 */
+    /* Dataseheet page 37 */
     float mlx90640_processor_c::get_gain() const {
         int gain = bus.read_register(registers::EE_GAIN);
         apply_treshold(gain, 32767, 65536);
