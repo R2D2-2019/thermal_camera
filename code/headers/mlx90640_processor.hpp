@@ -107,7 +107,7 @@ namespace r2d2::thermal_camera {
         /**
          * Reads a register, extracts the data and applies a treshold on it.
          * See apply_treshold and extract_data functions for the parameter info.
-         *  
+         *
          * @return int - the processed data.
          * */
         int get_compensated_data(const uint16_t reg_addr,
@@ -118,10 +118,10 @@ namespace r2d2::thermal_camera {
          * Performs a read on the i2c bus, checks wether the read value gets
          * higher than 32767. If so, it gets reduced by 65536. This is when no
          * shifting or other bitwise operands are necessary.
-         * 
+         *
          * See apply_treshold and extract_data functions for the parameter info.
          * */
-        int read_and_apply_treshold(const uint16_t addr) const;
+        int read_and_apply_treshold(const uint16_t reg_addr) const;
 
         /**
          * Checks wether row is higher than 32 and col higher than 24.
@@ -131,14 +131,14 @@ namespace r2d2::thermal_camera {
 
         /**
          * Gets the VDD sensor parameters. Common for all pixels.
-         * 
+         *
          * @return float
          * */
         void set_Vdd();
 
         /**
          * Gets the ambient temperature of the pixels. Common for all pixels.
-         * 
+         *
          * @return float
          * */
         void set_Ta();
@@ -151,7 +151,7 @@ namespace r2d2::thermal_camera {
         void set_Kgain();
         /*
          * Gets the Kv coeffecient
-         * 
+         *
          * @return float - Kv
          * */
         float get_Kv_coefficient(int row, int col, uint16_t offset_addr);
@@ -159,7 +159,7 @@ namespace r2d2::thermal_camera {
         /**
          * The first step of the data processing on raw IR data is always the
          * gain compensation, regardless of pixel or subpage number.
-         * 
+         *
          * @param int row - the selected row. Value between 1 and 24
          * @param int col - the selected column. Value between 1 and 32
          * @return float - the compensated processed gain compensation
@@ -168,7 +168,7 @@ namespace r2d2::thermal_camera {
 
         /**
          * Gets the compensation of the gain of the cp (corner pixel)
-         * 
+         *
          * @return float - the gain for the corner pixels
          * */
         void set_cp_gain();
@@ -194,7 +194,7 @@ namespace r2d2::thermal_camera {
 
         /**
          * Gets the pixel OS.
-         * 
+         *
          * @return float
          * */
         float get_pix_OS(int row, int col);
@@ -215,7 +215,7 @@ namespace r2d2::thermal_camera {
 
         /**
          * Returns the resoting offset.
-         * 
+         *
          * @return int - the offset
          * */
         float get_offset_calculation(const int row, const int col);
