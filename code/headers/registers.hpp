@@ -40,6 +40,7 @@ struct registers {
         EE_CP_OFF_DELTA_OFFSET_CP_SP0 = 0x243A,
         EE_KV_KTA_CP = 0x243B,
         EE_KSTA_TGC = 0x243C,
+        EE_KSTA_RANGE_1_2 = 0x243D,
         EE_OFFSET_PIX = 0x243F
     };
 };

@@ -32,8 +32,8 @@ namespace r2d2::thermal_camera {
             extract_data(registers::EE_CTRL_CALIB_KV_KTA_SCALE, 0x3000, 12);
         uint16_t resolution_reg =
             extract_data(registers::INTERNAL_CONTROL_REGISTER, 0xFFFF, 10);
-        resolution_ee = (1 << resolution_ee);
-        resolution_reg = (1 << resolution_reg);
+        resolution_ee = (1u << resolution_ee);
+        resolution_reg = (1u << resolution_reg);
         return static_cast<uint8_t>(resolution_ee / resolution_reg);
     }
 
@@ -152,7 +152,7 @@ namespace r2d2::thermal_camera {
             extract_data(registers::EE_CTRL_CALIB_KV_KTA_SCALE, 0x000F, 0);
 
         Kta_row_col =
-            (Kta_rc_ee + Kta_ee * (1 << Kta_scale_2)) / (1 << Kta_scale_1);
+            (Kta_rc_ee + Kta_ee * (1u << Kta_scale_2)) / (1u << Kta_scale_1);
         // either shifts it 12, 8, 4 or 0 times.
         const uint8_t shift = row_odd * 4 + col_odd * 8;
         // Results can be: 0xF000, 0x0F00, 0x00F0, 0x000F
@@ -161,7 +161,7 @@ namespace r2d2::thermal_camera {
             get_compensated_data(registers::EE_KV_AVG, Kv_mask, shift, 7, 16);
         const int Kv_scale =
             extract_data(registers::EE_CTRL_CALIB_KV_KTA_SCALE, 0x0F00, 8);
-        Kv /= (1 << Kv_scale);
+        Kv /= (1u << Kv_scale);
         return Kv;
     }
 
@@ -222,13 +222,13 @@ namespace r2d2::thermal_camera {
             get_compensated_data(registers::EE_KV_KTA_CP, 0x00FF, 0, 127, 256);
 
         const float Kta_cp = // cast float, both are ints
-            static_cast<float>(Kta_cp_ee) / (1 << Kta_scale_1);
+            static_cast<float>(Kta_cp_ee) / (1u << Kta_scale_1);
 
         const int Kv_scale =
             extract_data(registers::EE_CTRL_CALIB_KV_KTA_SCALE, 0x0F00, 8);
         const int Kv_cp_ee =
             get_compensated_data(registers::EE_KV_KTA_CP, 0xFF00, 8, 127, 256);
-        const float Kv_cp = static_cast<float>(Kv_cp_ee) / (1 << Kv_scale);
+        const float Kv_cp = static_cast<float>(Kv_cp_ee) / (1u << Kv_scale);
 
         const float constant =
             (1 + Kta_cp * (Ta - TA0)) * (1 + Kv_cp * (Vdd - VDD0));
@@ -275,9 +275,9 @@ namespace r2d2::thermal_camera {
         const int Occ_scale_rem = (Occ_scale & 0x000F);
 
         const int Pix_OS_ref = offset_average +
-                               Occ_row_x * (1 << Occ_scale_row) +
-                               Occ_col_x * (1 << Occ_scale_col) +
-                               offset_row_col * (1 << Occ_scale_rem);
+                               Occ_row_x * (1u << Occ_scale_row) +
+                               Occ_col_x * (1u << Occ_scale_col) +
+                               offset_row_col * (1u << Occ_scale_rem);
 
         /* Prevents function from being const*/
         const float Kv = get_Kv_coefficient(row, col, offset_addr);
@@ -297,29 +297,24 @@ namespace r2d2::thermal_camera {
         return (row - 1) * 32 + col;
     }
 
-    float mlx90640_processor_c::get_offset_calculation(int row, int col) {
-        check_within_limits(row, col);
-        const float Pix_Os = get_pix_OS(row, col);
-        compensate_cp();
-        const int patron = get_patron(row, col);
-        const float Vir_emissivity_comp = Pix_Os / emissivity;
-        const float Vir_row_col_comp =
-            Vir_emissivity_comp -
-            TGC * ((1 - patron) * pix_os_cp_sp0 + patron * pix_os_cp_sp1);
-        (void)Vir_row_col_comp;
-
+    float mlx90640_processor_c::get_alpha_compensation(const int row,
+                                                       const int col,
+                                                       const float Pix_OS,
+                                                       const int patron) const {
         const int ee_alpha_acc_scale_result =
             bus.read_register(registers::EE_ALPHA_ACC_SCALE);
+
+        const int ee_cp_sp0_alpha =
+            bus.read_register(registers::EE_CP_SP0_ALPHA);
 
         const int alpha_scale_cp =
             ((ee_alpha_acc_scale_result & 0xF000) >> 12) + 27;
 
-        const int CP_P1_P0_ratio = get_compensated_data(
-            registers::EE_CP_SP0_ALPHA, 0xFC00, 10, 31, 64);
+        int CP_P1_P0_ratio = (ee_cp_sp0_alpha & 0xFC00) >> 10;
+        apply_treshold(CP_P1_P0_ratio, 31, 64);
 
         const float alpha_cp_sp_0 =
-            extract_data(registers::EE_CP_SP0_ALPHA, 0x03FF, 0) /
-            (1 << alpha_scale_cp);
+            (ee_cp_sp0_alpha & 0x03FF) / (1u << alpha_scale_cp);
         const float alpha_cp_sp_1 =
             alpha_cp_sp_0 * (1 + (CP_P1_P0_ratio / 128));
         const float Ks_Ta = KstaEE / 8192;
@@ -348,16 +343,47 @@ namespace r2d2::thermal_camera {
             31, 64);
 
         const float alpha_row_col =
-            (alpha_ref + ACC_row * (1 << ACC_scale_row) +
-             ACC_col * (1 << ACC_scale_col) +
-             alpha_pixel_row_col * (1 << ACC_scale_rem)) /
-            (1 << alpha_scale);
+            (alpha_ref + ACC_row * (1u << ACC_scale_row) +
+             ACC_col * (1u << ACC_scale_col) +
+             alpha_pixel_row_col * (1u << ACC_scale_rem)) /
+            (1u << alpha_scale);
         const float alpha_comp_row_col =
             (alpha_row_col -
              TGC * ((1 - patron) * alpha_cp_sp_0 + patron * alpha_cp_sp_1)) *
             (1 + Ks_Ta * (Ta - TA0));
 
-        (void)alpha_comp_row_col;
+        return alpha_comp_row_col;
+    }
+
+    float
+    mlx90640_processor_c::get_IR_gradient_compensation(const float Pix_Os,
+                                                       const int patron) const {
+        const float Vir_emissivity_comp = Pix_Os / emissivity;
+        const float Vir_row_col_comp =
+            Vir_emissivity_comp -
+            TGC * ((1 - patron) * pix_os_cp_sp0 + patron * pix_os_cp_sp1);
+        return Vir_row_col_comp;
+    }
+
+    float mlx90640_processor_c::get_offset_calculation(int row, int col) {
+        check_within_limits(row, col);
+        const float Pix_Os = get_pix_OS(row, col);
+        compensate_cp();
+        const int patron = get_patron(row, col);
+        const float alpha_compensation =
+            get_alpha_compensation(row, col, Pix_Os, patron);
+        const float ir_gradient_compensation =
+            get_IR_gradient_compensation(Pix_Os, patron);
+
+        const int KS_to2_ee = get_compensated_data(registers::EE_KSTA_RANGE_1_2,
+                                                   0xFF00, 8, 127, 256);
+        const int KS_to_scale =
+            extract_data(registers::EE_OFFSET_PIX, 0x000F, 0) + 8;
+        const float Ks_To2 = KS_to2_ee / (1u << KS_to_scale);
+
+        (void)Ks_To2;
+        (void)alpha_compensation;
+        (void)ir_gradient_compensation;
         return float{};
     }
 

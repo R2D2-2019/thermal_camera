@@ -71,14 +71,14 @@ namespace r2d2::thermal_camera {
          * Emissivity compensation: We assume Emissivity = 1.
          * Emissivity coefficient is user defined and it is not stored in the
          * device EEPROM)
-         * */
+         */
         float emissivity;
 
         /**
          * The device is calibrated with default resolution setting = 2
          * i.e. if the one choose to change the ADC resolution setting to a
          * different one a correction of the data must be done.
-         * */
+         */
         uint8_t get_resolution_correlation() const;
 
         /**
@@ -88,7 +88,7 @@ namespace r2d2::thermal_camera {
          * @param uint16_t and_bits - ands the result from the read operation
          * with and_bits.
          * @param uint16_t shifted - shifts the bits with shifted amount.
-         * */
+         */
         uint16_t extract_data(const uint16_t reg_addr, const uint16_t and_bits,
                               const uint8_t shifted) const;
 
@@ -99,7 +99,7 @@ namespace r2d2::thermal_camera {
          * @param int value - the value to be checked.
          * @param uint16_t exceeds - the value it may not exceed.
          * @param uint16_t minus - the value 'value' gets reduced by.
-         * */
+         */
 
         void apply_treshold(int &value, const uint16_t exceeds,
                             const int minus) const;
@@ -109,7 +109,7 @@ namespace r2d2::thermal_camera {
          * See apply_treshold and extract_data functions for the parameter info.
          *
          * @return int - the processed data.
-         * */
+         */
         int get_compensated_data(const uint16_t reg_addr,
                                  const uint16_t and_bits, const uint8_t shifted,
                                  const uint16_t exceeds, const int minus) const;
@@ -120,40 +120,40 @@ namespace r2d2::thermal_camera {
          * shifting or other bitwise operands are necessary.
          *
          * See apply_treshold and extract_data functions for the parameter info.
-         * */
+         */
         int read_and_apply_treshold(const uint16_t reg_addr) const;
 
         /**
          * Checks wether row is higher than 32 and col higher than 24.
          * If so. row = 32 and/or col = 24.
-         * */
+         */
         void check_within_limits(int &row, int &col) const;
 
         /**
          * Gets the VDD sensor parameters. Common for all pixels.
          *
          * @return float
-         * */
+         */
         void set_Vdd();
 
         /**
          * Gets the ambient temperature of the pixels. Common for all pixels.
          *
          * @return float
-         * */
+         */
         void set_Ta();
 
         /**
          * Sets the gain parameter. Please note that this value is updated every
          * frame and it is the same for all pixels including CP regardless the
          * subpage number
-         * */
+         */
         void set_Kgain();
         /*
          * Gets the Kv coeffecient
          *
          * @return float - Kv
-         * */
+         */
         float get_Kv_coefficient(int row, int col, uint16_t offset_addr);
 
         /**
@@ -163,14 +163,14 @@ namespace r2d2::thermal_camera {
          * @param int row - the selected row. Value between 1 and 24
          * @param int col - the selected column. Value between 1 and 32
          * @return float - the compensated processed gain compensation
-         * */
+         */
         float get_pix_gain(const int row, const int col) const;
 
         /**
          * Gets the compensation of the gain of the cp (corner pixel)
          *
          * @return float - the gain for the corner pixels
-         * */
+         */
         void set_cp_gain();
 
         /**
@@ -179,36 +179,59 @@ namespace r2d2::thermal_camera {
          * mode)). Depending on the device measurement mode and pixelNumber = 1
          * ... 768 we can define a pattern which will help us to automatically
          * switch between both subpages.
-         * */
+         */
         int get_patron(int row, int col) const;
 
         /**
          * Compensates the offset, Ta and VDD of the CP.
-         * */
+         */
         void compensate_cp();
 
         /**
          * Sets the TGC parameter
-         * */
+         */
         void set_TGC();
 
         /**
          * Gets the pixel OS.
          *
          * @return float
-         * */
+         */
         float get_pix_OS(int row, int col);
 
         /**
          * Sets the Ksta parameter
-         * */
+         */
         void set_Ksta_EE();
 
         /**
          * Gets the pixel number.
          * @return int
-         * */
+         */
         int get_pixel_number(int row, int col) const;
+
+        /**
+         * Gets the alpha compensation
+         *
+         * @param int row - the pixel row
+         * @param int col - the pixel column
+         * @param float Pix_Os
+         * @param int patron - the pattern
+         * @return float
+         */
+        float get_alpha_compensation(const int row, const int col,
+                                     const float Pix_OS,
+                                     const int patron) const;
+
+        /**
+         * Gets the Vir row col compensation
+         *
+         * @param float Pix_Os
+         * @param int patron - the pattern
+         * @return float
+         */
+        float get_IR_gradient_compensation(const float Pix_Os,
+                                           const int patron) const;
 
     public:
         mlx90640_processor_c(mlx90640_i2c_c &bus, float emissivity = 1);
@@ -217,13 +240,13 @@ namespace r2d2::thermal_camera {
          * Returns the resoting offset.
          *
          * @return int - the offset
-         * */
+         */
         float get_offset_calculation(const int row, const int col);
 
         /**
          * Sets the reading pattern. Required, because when a different pattern
          * is used, a different calculation is required.
-         * */
+         */
         void set_reading_pattern(const reading_pattern &pattern);
     };
 } // namespace r2d2::thermal_camera

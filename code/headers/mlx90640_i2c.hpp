@@ -6,7 +6,7 @@ namespace r2d2::thermal_camera {
     /**
      * This class contains two methods by which reading and writing operations
      * are carried out.
-     * */
+     */
     class mlx90640_i2c_c {
     private:
         // i2c bus
@@ -21,7 +21,7 @@ namespace r2d2::thermal_camera {
          *
          * @param uint16_t internal address of the chip
          * @return uint16_t read data.
-         * */
+         */
         uint16_t read_register(const uint16_t internal_address) const;
 
         /**
@@ -29,7 +29,7 @@ namespace r2d2::thermal_camera {
          *
          * @param uint16_t internal_address of the chip.
          * @param uint16_t data to be written
-         * */
+         */
         void write_register(const uint16_t internal_address,
                             const uint16_t data) const;
     };
