@@ -1,6 +1,7 @@
 #pragma once
 #include <i2c_bus.hpp>
 #include <registers.hpp>
+
 namespace r2d2::thermal_camera {
     /**
      * This class contains two methods by which reading and writing operations
