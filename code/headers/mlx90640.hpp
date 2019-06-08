@@ -10,7 +10,7 @@ namespace r2d2::thermal_camera {
 
     class mlx90640_c {
     private:
-        /*
+        /**
          * i2c bus with read and write operations specially implemented for this
          * chip.
          * */
@@ -30,7 +30,7 @@ namespace r2d2::thermal_camera {
          * to. Either has to be a 0 or a 1.
          * */
         void toggle_nth_bit(uint16_t &source, const uint8_t n,
-                            const uint8_t to) const;
+                            const bool to) const;
 
         // Default address of the MLX90460
         static constexpr uint8_t I2C_ADDRESS = 0x33;
@@ -46,7 +46,6 @@ namespace r2d2::thermal_camera {
         /**
          * Sets the refresh rate in Hz of the camera.
          *
-         *
          * @param uint16_t refresh_rate. Valid values are (Hz): 64, 32, 16, 8,
          * 4, 2, 1
          * */
@@ -58,7 +57,7 @@ namespace r2d2::thermal_camera {
          * @return uint16_t refresh rate in Hz.
          * */
         uint16_t get_refresh_rate() const;
-		
+
         /**
          * Checks wether a new data set (subpage/frame) is available, and sets
          * the appropriate internal bit to 0 again.

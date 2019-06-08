@@ -3,29 +3,7 @@
 #include <array>
 #include <cmath>
 #include <mlx90640_i2c.hpp>
-
-/**
- * MLX90640 16 bits registers
- * INTERNAL means internal register.
- * EE means EEPROM (Electric Erasable Programmable Read-Only)
- * RAM means just RAM (Random Acces Memory)
- **/
-enum : uint16_t {
-    INTERNAL_CONTROL_REGISTER = 0x800D,
-    INTERNAL_STATUS_REGISTER = 0x8000,
-
-    RAM_TA_VBE = 0x0700,
-    RAM_GAIN = 0x070A,
-    RAM_VDD_PIX = 0x072A,
-    RAM_TA_PTAT = 0x0720,
-
-    EE_GAIN = 0x2430,
-    EE_PTAT25 = 0x2431,
-    EE_VDD_PIX = 0x2433,
-    EE_SCALE_OCC = 0x2410,
-    EE_RESOLUTION = 0x2438,
-    EE_KV_KT_PTAT = 0x2432
-};
+#include <registers.hpp>
 
 namespace r2d2::thermal_camera {
     /**
@@ -39,9 +17,6 @@ namespace r2d2::thermal_camera {
         // i2c bus with (internal) read- and write_register operations.
         mlx90640_i2c_c &bus;
 
-        // Pixel array
-        std::array<std::array<uint16_t, 32>, 24> pixels;
-
         /**
          * Supply voltage in Volts
          * */
@@ -50,12 +25,6 @@ namespace r2d2::thermal_camera {
         int Kvdd;
         // Kvdd25, required for calculations
         int Vdd25;
-
-        /**
-         * Reads a block of memory (pixel values) from the chip and inserts it
-         * into pixels.
-         * */
-        void set_and_read_raw_pixels();
 
         /**
          * The device is calibrated with default resolution setting = 2
@@ -72,7 +41,7 @@ namespace r2d2::thermal_camera {
          * with and_bits.
          * @param uint16_t shifted - shifts the bits with shifted amount.
          * */
-        uint16_t extract_data(const uint16_t reg_addr, const uint16_t and_bits,
+        uint16_t extract_data(const registers reg_addr, const uint16_t and_bits,
                               const uint8_t shifted) const;
 
         /**
@@ -92,7 +61,7 @@ namespace r2d2::thermal_camera {
          *
          * @return int - the processed data.
          * */
-        int get_compensated_data(const uint16_t reg_addr,
+        int get_compensated_data(const registers reg_addr,
                                  const uint16_t and_bits, const uint8_t shifted,
                                  const uint16_t exceeds, const int minus) const;
 
