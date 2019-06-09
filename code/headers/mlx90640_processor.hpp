@@ -82,54 +82,6 @@ namespace r2d2::thermal_camera {
         uint8_t get_resolution_correlation() const;
 
         /**
-         * Extracts the data from a given addres.
-         *
-         * @param uin16_t reg_addr - a register address of the chip.
-         * @param uint16_t and_bits - ands the result from the read operation
-         * with and_bits.
-         * @param uint16_t shifted - shifts the bits with shifted amount.
-         */
-        uint16_t extract_data(const uint16_t reg_addr, const uint16_t and_bits,
-                              const uint8_t shifted) const;
-
-        /**
-         * Checks wether value exceeds 'exceeds', if so, it reduces value by
-         * 'minus' amount.
-         *
-         * @param int value - the value to be checked.
-         * @param uint16_t exceeds - the value it may not exceed.
-         * @param uint16_t minus - the value 'value' gets reduced by.
-         */
-
-        void apply_treshold(int &value, const uint16_t exceeds,
-                            const int minus) const;
-
-        /**
-         * Reads a register, extracts the data and applies a treshold on it.
-         * See apply_treshold and extract_data functions for the parameter info.
-         *
-         * @return int - the processed data.
-         */
-        int get_compensated_data(const uint16_t reg_addr,
-                                 const uint16_t and_bits, const uint8_t shifted,
-                                 const uint16_t exceeds, const int minus) const;
-
-        /**
-         * Performs a read on the i2c bus, checks wether the read value gets
-         * higher than 32767. If so, it gets reduced by 65536. This is when no
-         * shifting or other bitwise operands are necessary.
-         *
-         * See apply_treshold and extract_data functions for the parameter info.
-         */
-        int read_and_apply_treshold(const uint16_t reg_addr) const;
-
-        /**
-         * Checks wether row is higher than 32 and col higher than 24.
-         * If so. row = 32 and/or col = 24.
-         */
-        void check_within_limits(int &row, int &col) const;
-
-        /**
          * Gets the VDD sensor parameters. Common for all pixels.
          *
          * @return float
@@ -232,6 +184,15 @@ namespace r2d2::thermal_camera {
          */
         float get_IR_gradient_compensation(const float Pix_Os,
                                            const int patron) const;
+
+        /**
+         * Returns the pixel temperature in Celsius degrees
+         *
+         * @param float Vir_row_col_comp ir compensation
+         * @param float alpha_comp alpha compensation
+         * @return float temperature in celsius
+         */
+        float get_pixel_temp(float Vir_row_col_comp, float alpha_comp) const;
 
     public:
         mlx90640_processor_c(mlx90640_i2c_c &bus, float emissivity = 1);

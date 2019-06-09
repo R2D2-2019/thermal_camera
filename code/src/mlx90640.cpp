@@ -38,11 +38,11 @@ namespace r2d2::thermal_camera {
         uint16_t data =
             mlx_i2c_bus.read_register(registers::INTERNAL_STATUS_REGISTER);
         const volatile uint16_t frame_available = ((data >> 3) & 0x1);
-        if (frame_available == 0) {
-            // frame available is false, so we don't need to
-            // toggle anything back. We can leave as it was.
-            return false;
-        }
+        // if (frame_available == 0) {
+        // frame available is false, so we don't need to
+        // toggle anything back. We can leave as it was.
+        //    return false;
+        //}
         // Otherwise, mark bit as read by setting it back to 0
         toggle_nth_bit(data, 3, 0);
         mlx_i2c_bus.write_register(registers::INTERNAL_STATUS_REGISTER, data);
@@ -76,6 +76,10 @@ namespace r2d2::thermal_camera {
             mlx_i2c_bus.read_register(registers::INTERNAL_CONTROL_REGISTER);
         data = (data >> 12) & 1;
         return static_cast<reading_pattern>(data);
+    }
+
+    int mlx90640_c::get_pixel(int row, int col) {
+        return mlx_processor.get_offset_calculation(row, col);
     }
 
 } // namespace r2d2::thermal_camera

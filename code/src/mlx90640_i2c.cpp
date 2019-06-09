@@ -5,13 +5,13 @@ namespace r2d2::thermal_camera {
         : bus(bus), address(address) {
     }
 
-   uint16_t mlx90640_i2c_c::read_register(const uint16_t internal_address) 
-                                          const {
+    uint16_t
+    mlx90640_i2c_c::read_register(const uint16_t internal_address) const {
         uint8_t raw_data[2];
         bus.read(address, raw_data, 2, internal_address, 2);
         uint16_t msb = static_cast<uint16_t>(raw_data[1]),
                  lsb = static_cast<uint16_t>(raw_data[0]);
-        return msb << 8 | lsb;
+        return (msb << 8) | lsb;
     }
 
     void mlx90640_i2c_c::write_register(const uint16_t internal_address,

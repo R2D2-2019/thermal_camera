@@ -84,6 +84,14 @@ namespace r2d2::thermal_camera {
          * @return reading_pattern - the read pattern from the chip.
          */
         reading_pattern get_reading_pattern() const;
+        /**
+         * Gets a pixel from a given row and col.
+         *
+         * @param int row - the row between 1 - 32
+         * @param int col - the column between 1 and 24
+         * @return int - the temperature in Celsius
+         */
+        int get_pixel(int row, int col);
 
         // Max refresh rate of the chip
         static constexpr uint16_t MAX_REFRESH_RATE = 64;
