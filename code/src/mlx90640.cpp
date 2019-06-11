@@ -7,10 +7,17 @@ namespace r2d2::thermal_camera {
     mlx90640_c::mlx90640_c(i2c::i2c_bus_c &bus, const uint8_t address)
         : mlx_i2c_bus(bus, address), mlx_processor(mlx_i2c_bus) {
         mlx_processor.set_reading_pattern(get_reading_pattern());
+        // ADC is set to 18 bit by default.
+        uint16_t adc_resolution =
+            mlx_i2c_bus.read_register(registers::INTERNAL_CONTROL_REGISTER);
+        toggle_nth_bit(adc_resolution, 10, 0);
+        toggle_nth_bit(adc_resolution, 11, 1);
+        mlx_i2c_bus.write_register(registers::INTERNAL_CONTROL_REGISTER,
+                                   adc_resolution);
     }
 
     void mlx90640_c::toggle_nth_bit(uint16_t &source, const uint8_t n,
-                                    const uint8_t to) const volatile {
+                                    const uint8_t to) const {
         source = (source & ~(1U << n)) | (to << n);
     }
 
@@ -38,7 +45,7 @@ namespace r2d2::thermal_camera {
     bool mlx90640_c::frame_available() const {
         uint16_t data =
             mlx_i2c_bus.read_register(registers::INTERNAL_STATUS_REGISTER);
-        const volatile uint16_t frame_available = ((data >> 3) & 0x1);
+        const uint16_t frame_available = (data >> 3) & 1;
         if (frame_available == 0) {
             // frame available is false, so we don't need to
             // toggle anything back. We can leave as it was.
