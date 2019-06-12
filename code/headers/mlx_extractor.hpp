@@ -4,7 +4,9 @@
 
 namespace r2d2::thermal_camera {
     enum class reading_pattern { INTERLEAVED_MODE, CHESS_PATTERN_MODE };
-
+    /**
+     * Base class for extracting parameters in mlx_parameters_s.
+     */
     class mlx_extractor_c {
     protected:
         mlx90640_i2c_c &bus;

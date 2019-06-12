@@ -3,7 +3,7 @@
 
 namespace r2d2::thermal_camera {
     struct mlx_parameters_s {
-        /*
+        /**
          * Supply voltage in Volts
          */
         static constexpr float VDD0 = 3.3;

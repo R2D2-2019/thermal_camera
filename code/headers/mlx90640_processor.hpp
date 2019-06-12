@@ -8,7 +8,8 @@
 
 namespace r2d2::thermal_camera {
     /**
-     * This class contains the pipeline for all cals. See
+     * This class contains the pipeline for all mlx_extractor_c calls.
+     * See: "get_temperature_pixel"
      */
     class mlx90640_processor_c {
     private:
@@ -42,7 +43,7 @@ namespace r2d2::thermal_camera {
         mlx90640_processor_c(mlx90640_i2c_c &bus, float emissivity = 1);
 
         /**
-         * Gets the pixel temperature it is pointed at.
+         * Pipeline for getting the pixel temperature it is pointed at.
          *
          * @return float the temperature at (row, col)
          */

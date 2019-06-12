@@ -17,7 +17,7 @@ namespace r2d2::thermal_camera {
     }
 
     void mlx90640_c::toggle_nth_bit(uint16_t &source, const uint8_t n,
-                                    const uint8_t to) const {
+                                    const bool to) const {
         source = (source & ~(1U << n)) | (to << n);
     }
 
