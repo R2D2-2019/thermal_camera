@@ -15,7 +15,7 @@ namespace r2d2::thermal_camera {
                                                const uint8_t shifted,
                                                const uint16_t exceeds,
                                                const int minus) {
-        int extracted_data = (data & and_bits) >> shifted;
+        int extracted_data = extract_data(data, and_bits, shifted);
         extracted_data = apply_treshold(extracted_data, exceeds, minus);
         return extracted_data;
     }
