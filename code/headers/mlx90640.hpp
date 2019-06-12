@@ -45,7 +45,6 @@ namespace r2d2::thermal_camera {
         /**
          * Sets the refresh rate in Hz of the camera.
          *
-         *
          * @param uint16_t refresh_rate. Valid values are (Hz): 64, 32, 16, 8,
          * 4, 2, 1
          */
@@ -55,7 +54,7 @@ namespace r2d2::thermal_camera {
          * Gets the current refresh rate.
          *
          * @return uint16_t refresh rate in Hz.
-         * */
+         */
         uint16_t get_refresh_rate() const;
 
         /**
