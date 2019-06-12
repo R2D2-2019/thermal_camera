@@ -1,9 +1,19 @@
+#include <cmath>
 #include <mlx90640.hpp>
+#include <registers.hpp>
 
 namespace r2d2::thermal_camera {
 
     mlx90640_c::mlx90640_c(i2c::i2c_bus_c &bus, const uint8_t address)
         : mlx_i2c_bus(bus, address), mlx_processor(mlx_i2c_bus) {
+        mlx_processor.set_reading_pattern(get_reading_pattern());
+        // ADC is set to 18 bit by default.
+        uint16_t adc_resolution =
+            mlx_i2c_bus.read_register(registers::INTERNAL_CONTROL_REGISTER);
+        toggle_nth_bit(adc_resolution, 10, 0);
+        toggle_nth_bit(adc_resolution, 11, 1);
+        mlx_i2c_bus.write_register(registers::INTERNAL_CONTROL_REGISTER,
+                                   adc_resolution);
     }
 
     void mlx90640_c::toggle_nth_bit(uint16_t &source, const uint8_t n,
@@ -31,12 +41,12 @@ namespace r2d2::thermal_camera {
         mlx_i2c_bus.write_register(registers::INTERNAL_CONTROL_REGISTER, data);
     }
 
+    /* TODO: this function yet only works with 1Mhz clock speed */
     bool mlx90640_c::frame_available() const {
         uint16_t data =
             mlx_i2c_bus.read_register(registers::INTERNAL_STATUS_REGISTER);
-        // Checks wether the 3rd bit is 1 or 0.
-        const bool frame_available = (data >> 2) & 1;
-        if (!frame_available) {
+        const uint16_t frame_available = (data >> 3) & 1;
+        if (frame_available == 0) {
             // frame available is false, so we don't need to
             // toggle anything back. We can leave as it was.
             return false;
@@ -47,10 +57,13 @@ namespace r2d2::thermal_camera {
         return frame_available;
     }
 
-    void mlx90640_c::set_reading_pattern(const reading_pattern &pattern) const {
+    void mlx90640_c::set_reading_pattern(const reading_pattern &pattern) {
         uint16_t data =
             mlx_i2c_bus.read_register(registers::INTERNAL_CONTROL_REGISTER);
         uint8_t bit;
+
+        mlx_processor.set_reading_pattern(pattern);
+
         switch (pattern) {
         case reading_pattern::CHESS_PATTERN_MODE:
             bit = 1;
@@ -61,8 +74,20 @@ namespace r2d2::thermal_camera {
         default:
             return;
         }
+
         toggle_nth_bit(data, 12, bit);
         mlx_i2c_bus.write_register(registers::INTERNAL_CONTROL_REGISTER, data);
+    }
+
+    reading_pattern mlx90640_c::get_reading_pattern() const {
+        uint16_t data =
+            mlx_i2c_bus.read_register(registers::INTERNAL_CONTROL_REGISTER);
+        data = (data >> 12) & 1;
+        return static_cast<reading_pattern>(data);
+    }
+
+    int mlx90640_c::get_pixel(int row, int col) {
+        return mlx_processor.get_temperature_pixel(row, col);
     }
 
 } // namespace r2d2::thermal_camera
