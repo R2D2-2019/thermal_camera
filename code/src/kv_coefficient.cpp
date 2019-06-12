@@ -23,9 +23,9 @@ namespace r2d2::thermal_camera {
         const uint16_t Kta_rc_ee_addr = registers::EE_KTA_AVG + col_even;
         // take msb or lsb
         const uint16_t Kta_rc_ee_mask = 0xFF00 >> (8 * row_even);
+
         /* from Kta_rc_ee_addr, & it with Kta_rc_ee_mask, shift it with either 8
          or 0 spots*/
-
         data = bus.read_register(Kta_rc_ee_addr);
         const int Kta_rc_ee = data_extractor_s::extract_and_treshold(
             data, Kta_rc_ee_mask, 8 * row_odd, 127, 256);
@@ -35,6 +35,7 @@ namespace r2d2::thermal_camera {
             data_extractor_s::extract_data(data, 0x00F0, 4) + 8;
         const int Kta_scale_2 = data_extractor_s::extract_data(data, 0x00F, 0);
 
+        // Here, 1 << x equals 2^x again
         params.Kta_row_col =
             (Kta_rc_ee + Kta_ee * (1u << Kta_scale_2)) / (1u << Kta_scale_1);
         // either shifts it 12, 8, 4 or 0 times.

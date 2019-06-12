@@ -30,7 +30,8 @@ namespace r2d2::thermal_camera {
         data = bus.read_register(registers::INTERNAL_CONTROL_REGISTER);
         uint16_t resolution_reg =
             data_extractor_s::extract_data(data, 0x0C00, 10);
-        resolution_ee = (1u << resolution_ee); // 2^x = 1 << x
+        // (2^resolution_ee) = (1 << resolution_ee)
+        resolution_ee = (1u << resolution_ee);
         resolution_reg = (1u << resolution_reg);
         params.res_cor = static_cast<uint8_t>(resolution_ee / resolution_reg);
     }
@@ -41,9 +42,11 @@ namespace r2d2::thermal_camera {
 
         params.Kvdd =
             data_extractor_s::extract_and_treshold(data, 0xFF00, 8, 127, 256);
-        params.Kvdd <<= 5; // x * 2^y = x << y
+        // (Kvdd * 2^y) = (Kvdd << y)
+        params.Kvdd <<= 5;
 
         params.Vdd25 = data_extractor_s::extract_data(data, 0x00FF, 0);
+        // (x * 2^y) = (x << y)
         params.Vdd25 = ((params.Vdd25 - 256) << 5) - 8192;
 
         data = bus.read_register(registers::RAM_VDD_PIX);

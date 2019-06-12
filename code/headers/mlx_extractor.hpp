@@ -5,8 +5,6 @@
 namespace r2d2::thermal_camera {
     enum class reading_pattern { INTERLEAVED_MODE, CHESS_PATTERN_MODE };
 
-    void print(const char *message, long long val);
-
     class mlx_extractor_c {
     protected:
         mlx90640_i2c_c &bus;

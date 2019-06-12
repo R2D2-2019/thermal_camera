@@ -27,6 +27,7 @@ namespace r2d2::thermal_camera {
             data_extractor_s::extract_and_treshold(data, 0x00FF, 0, 127, 256);
         const int Kv_cp_ee =
             data_extractor_s::extract_and_treshold(data, 0xFF00, 8, 127, 256);
+        // Here, 1 << x equals 2^x again
         const float Kv_cp = static_cast<float>(Kv_cp_ee) / (1u << Kv_scale);
 
         const float Kta_cp = // cast float, both are ints
