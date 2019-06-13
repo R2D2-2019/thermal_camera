@@ -6,31 +6,29 @@
 
 namespace r2d2::thermal_camera {
 
-    enum class reading_pattern { INTERLEAVED_MODE, CHESS_PATTERN_MODE };
-
     class mlx90640_c {
     private:
-        /*
+        /**
          * i2c bus with read and write operations specially implemented for this
          * chip.
-         * */
+         */
         mlx90640_i2c_c mlx_i2c_bus;
         /**
          * This object is responsible for all calulations. Best to keep it
          * seperate.
-         * */
+         */
         mlx90640_processor_c mlx_processor;
 
         /**
-         * Changes nth bit to 'to' in source.
+         * Changes nth bit to 'to' in 'source'.
          *
          * @param int source. The to be changed value.
-         * @param int n. The nth bit to be toggled.
-         * @param int to. This value represents the value it has to be changed
+         * @param uint8_t n. The nth bit to be toggled.
+         * @param bool to. This value represents the value it has to be changed
          * to. Either has to be a 0 or a 1.
-         * */
+         */
         void toggle_nth_bit(uint16_t &source, const uint8_t n,
-                            const uint8_t to) const;
+                            const bool to) const;
 
         // Default address of the MLX90460
         static constexpr uint8_t I2C_ADDRESS = 0x33;
@@ -41,22 +39,22 @@ namespace r2d2::thermal_camera {
          *
          * @param i2c_bus_c
          * @param uint8_t address of the device. Default set with 0x33.
-         * */
+         */
         mlx90640_c(i2c::i2c_bus_c &bus, const uint8_t address = I2C_ADDRESS);
+
         /**
          * Sets the refresh rate in Hz of the camera.
          *
-         *
          * @param uint16_t refresh_rate. Valid values are (Hz): 64, 32, 16, 8,
          * 4, 2, 1
-         * */
+         */
         void set_refresh_rate(uint16_t refresh_rate) const;
 
         /**
          * Gets the current refresh rate.
          *
          * @return uint16_t refresh rate in Hz.
-         * */
+         */
         uint16_t get_refresh_rate() const;
 
         /**
@@ -64,7 +62,7 @@ namespace r2d2::thermal_camera {
          * the appropriate internal bit to 0 again.
          *
          * @return true if new data is available, false otherwise.
-         * */
+         */
         bool frame_available() const;
 
         /**
@@ -77,8 +75,24 @@ namespace r2d2::thermal_camera {
          * sensor.
          *
          * @param reading_pattern
-         * */
-        void set_reading_pattern(const reading_pattern &pattern) const;
+         */
+        void set_reading_pattern(const reading_pattern &pattern);
+
+        /**
+         * Gets the reading pattern of the chip.
+         *
+         * @return reading_pattern - the read pattern from the chip.
+         */
+        reading_pattern get_reading_pattern() const;
+
+        /**
+         * Gets a pixel from a given row and col.
+         *
+         * @param int row - the row between 1 - 32
+         * @param int col - the column between 1 and 24
+         * @return int - the temperature in Celsius
+         */
+        int get_pixel(int row, int col);
 
         // Max refresh rate of the chip
         static constexpr uint16_t MAX_REFRESH_RATE = 64;
