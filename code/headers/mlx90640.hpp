@@ -39,8 +39,11 @@ namespace r2d2::thermal_camera {
          *
          * @param i2c_bus_c
          * @param uint8_t address of the device. Default set with 0x33.
+         * @param int refresh_rate in Hz
+         * @param float emissivity correction. Default set by 1.
          */
-        mlx90640_c(i2c::i2c_bus_c &bus, const uint8_t address = I2C_ADDRESS);
+        mlx90640_c(i2c::i2c_bus_c &bus, float emissivity = 1,
+                   int refresh_rate = 2, const uint8_t address = I2C_ADDRESS);
 
         /**
          * Sets the refresh rate in Hz of the camera.
@@ -90,9 +93,9 @@ namespace r2d2::thermal_camera {
          *
          * @param int row - the row between 1 - 32
          * @param int col - the column between 1 and 24
-         * @return int - the temperature in Celsius
+         * @return float - the temperature in Celsius
          */
-        int get_pixel(int row, int col);
+        float get_pixel(int row, int col);
 
         // Max refresh rate of the chip
         static constexpr uint16_t MAX_REFRESH_RATE = 64;

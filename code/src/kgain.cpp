@@ -13,7 +13,7 @@ namespace r2d2::thermal_camera {
 
         data = bus.read_register(registers::RAM_GAIN);
         const int ram_gain = data_extractor_s::apply_treshold(data);
-
+        
         params.Kgain = static_cast<float>(gain) / ram_gain;
     }
 } // namespace r2d2::thermal_camera

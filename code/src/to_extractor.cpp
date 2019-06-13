@@ -15,18 +15,19 @@ namespace r2d2::thermal_camera {
             data_extractor_s::extract_data(KS_to_scale, 0x000F, 0) + 8;
 
         const float Ks_To2 = KS_to2_ee / (1u << KS_to_scale);
-
-        // TODO this number can be 10 digits long
-        const float Tak4 = std::pow(4, (params.Ta + 273.15));
-        // TODO this number can be 10 digits long
+        
+        /* Tak4, Trk4 and T_a_r can be 10 digits long. */
+        const float Tak4 = std::pow((params.Ta + 273.15), 4);
         const float Trk4 =
-            std::pow(4, ((params.Ta - 8) + 273.15)); // Tr +- Ta - 8
+            std::pow((params.Ta - 8) + 273.15, 4); // Tr +- Ta - 8
         const float T_a_r = Trk4 - ((Trk4 - Tak4) / params.emissivity);
 
         float Sx_row_col =
             std::pow(params.alpha_comp_row_col, 3) * params.Vir_row_col_comp +
             std::pow(params.alpha_comp_row_col, 4) * T_a_r;
-        Sx_row_col = std::sqrt(std::sqrt(Sx_row_col)); // 4th sqrt
+
+        Sx_row_col = Ks_To2 * std::sqrt(std::sqrt(Sx_row_col)); // 4th sqrt
+
         params.To_row_col = std::sqrt(std::sqrt(params.Vir_row_col_comp /
                                                     (params.alpha_comp_row_col *
                                                          (1 - Ks_To2 * 273.15) +
