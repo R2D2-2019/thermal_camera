@@ -41,8 +41,8 @@ namespace r2d2::thermal_camera {
         const float Ks_Ta = KstaEE / 8192.f;
 
         /* calculating offset for correct addr & bit set */
-        const uint8_t row_offset = registers::EE_ACC_COL + ((row - 1) / 4);
-        const uint8_t col_offset = registers::EE_ACC_ROW + ((col - 1) / 4);
+        const uint16_t row_offset = registers::EE_ACC_COL + ((row - 1) / 4);
+        const uint16_t col_offset = registers::EE_ACC_ROW + ((col - 1) / 4);
         const uint16_t row_mask = 0x0F << (4 * ((row - 1) % 4));
         const uint16_t col_mask = 0x0F << (4 * ((col - 1) % 4));
 
