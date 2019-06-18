@@ -80,8 +80,8 @@ namespace r2d2::thermal_camera {
         return static_cast<reading_pattern>(data);
     }
 
-    float mlx90640_c::get_pixel(int row, int col) {
-        return mlx_processor.get_temperature_pixel(row, col);
+    void mlx90640_c::set_frame() {
+        mlx_processor.set_frame();
     }
 
 } // namespace r2d2::thermal_camera
