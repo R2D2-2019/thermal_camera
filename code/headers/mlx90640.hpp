@@ -30,9 +30,6 @@ namespace r2d2::thermal_camera {
         void toggle_nth_bit(uint16_t &source, const uint8_t n,
                             const bool to) const;
 
-        // Default address of the MLX90460
-        static constexpr uint8_t I2C_ADDRESS = 0x33;
-
     public:
         /**
          * MLX90640 constructor.
@@ -89,16 +86,14 @@ namespace r2d2::thermal_camera {
         reading_pattern get_reading_pattern() const;
 
         /**
-         * Gets a pixel from a given row and col.
-         *
-         * @param int row - the row between 1 - 32
-         * @param int col - the column between 1 and 24
-         * @return float - the temperature in Celsius
+         * Sets the mlx90640::pixels frame.
          */
-        float get_pixel(int row, int col);
+        void set_frame();
 
         // Max refresh rate of the chip
         static constexpr uint16_t MAX_REFRESH_RATE = 64;
+        // Default address of the MLX90460
+        static constexpr uint8_t I2C_ADDRESS = 0x33;
     };
 
 } // namespace r2d2::thermal_camera
