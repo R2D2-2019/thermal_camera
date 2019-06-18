@@ -37,6 +37,7 @@ namespace r2d2::thermal_camera {
 
         // Here, 1 << x equals 2^x again
         table[row - 1][col - 1] =
-            (Kta_rc_ee + Kta_ee * (1u << Kta_scale_2)) / (1ll << Kta_scale_1);
+            (Kta_rc_ee + Kta_ee * (1u << Kta_scale_2));
+        table[row - 1][col - 1] /= (1ll << Kta_scale_1);
     }
 } // namespace r2d2::thermal_camera
