@@ -24,5 +24,6 @@ namespace r2d2::thermal_camera {
         const int Kv_scale = data_extractor::extract_data(data, 0x0F00, 8);
 
         table[row - 1][col - 1] = Kv_row_col / (1u << Kv_scale);
+        table[row - 1][col - 1] /= (1u << Kv_scale);
     }
 } // namespace r2d2::thermal_camera
