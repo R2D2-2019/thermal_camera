@@ -17,16 +17,8 @@ namespace r2d2::thermal_camera {
          * device EEPROM)
          */
         float emissivity;
-        // Kvdd, required for calculations
-        int Kvdd;
-        // Kvdd25, required for calculations
-        int Vdd25;
-        // Vdd required for calculations
-        float Vdd;
         // Kgain for gain compenstation
         float Kgain;
-        // Kta, required for calculations
-        float Kta_row_col;
         // Ta, ambient temp, required for calculations
         float Ta;
         // Pixel gain corner pixel subpage 0
@@ -39,19 +31,55 @@ namespace r2d2::thermal_camera {
         float pix_os_cp_sp1;
         // TGC for calcs
         float TGC;
-        // resulting pixel temperature
-        float To_row_col;
-        // alpha compensation (i, j)
-        float alpha_comp_row_col;
         // resolution correlation
         uint8_t res_cor;
-        // Kv coefficient
-        float Kv;
-        // pixel offset
-        float Pix_Os;
-        // patron reading (interleaved or chess) result
-        int patron;
-        // Vir (i, j) compensated
-        float Vir_row_col_comp;
+        // Kvdd, required for calculations
+        int Kvdd;
+        // Kvdd25, required for calculations
+        int Vdd25;
+        // Vdd required for calculations
+        float Vdd;
+        // EE KTptat
+        float KTptat;
+        // EE KVptat
+        float KVptat;
+        // EE Vptat25
+        int Vptat25;
+        // EE alpha_ptat
+        float alpha_ptat;
+        // EE gain coefficient
+        int ee_gain;
+        // EE KsTa coefficient
+        float KsTa;
+        // ct1 default -40
+        int ct1 = -40;
+        // ct2 default 0
+        int ct2 = 0;
+        // EE corner temp 3
+        int ct3;
+        // EE corner temp 4
+        int ct4;
+        // ksto coefficients
+        float ksto1;
+        float ksto2;
+        float ksto3;
+        float ksto4;
+        // Sensitivity correction coefficients
+        float alpha_corr_range1;
+        float alpha_corr_range2;
+        float alpha_corr_range3;
+        float alpha_corr_range4;
+        // alpha corner pixel subpage 0 and 1
+        float alpha_cp_sp_0;
+        float alpha_cp_sp_1;
+        // offset cornerpixel subpage 0 and 1
+        int off_cp_sp0;
+        int off_cp_sp1;
+        // Kv cornerpixel coefficient
+        float Kv_cp;
+        // Kta cornerpixel coefficient
+        float Kta_cp;
+        // Resolution control coefficient
+        uint16_t resolution_ee;
     };
 } // namespace r2d2::thermal_camera
