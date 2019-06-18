@@ -14,8 +14,12 @@ int main() {
     mlx90640_c thermal_cam(bus, emissivity, refresh_rate);
 
     while (true) {
-        if (thermal_cam.frame_available()) {
-            thermal_cam.set_frame();
-        }
+        thermal_cam.set_frame();
+        /*for (const auto& row : thermal_cam.get_frame()) {
+            for (const auto& col : row) {
+                hwlib::cout << (int)col << ' ';
+            }
+            hwlib::cout << hwlib::endl;
+        }*/
     }
 }

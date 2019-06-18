@@ -29,6 +29,13 @@ namespace r2d2::thermal_camera {
          */
         void toggle_nth_bit(uint16_t &source, const uint8_t n,
                             const bool to) const;
+        /**
+         * Checks wether a new data set (subpage/frame) is available, and sets
+         * the appropriate internal bit to 0 again.
+         *
+         * @return true if new data is available, false otherwise.
+         */
+        bool frame_available() const;
 
     public:
         /**
@@ -58,14 +65,6 @@ namespace r2d2::thermal_camera {
         uint16_t get_refresh_rate() const;
 
         /**
-         * Checks wether a new data set (subpage/frame) is available, and sets
-         * the appropriate internal bit to 0 again.
-         *
-         * @return true if new data is available, false otherwise.
-         */
-        bool frame_available() const;
-
-        /**
          * Sets the reading pattern of the chip. Interleaved (TV) mode or Chess
          * pattern mode. When chess pattern mode is selected, pixels in the row
          * 0, 2, 4, 6, 8, 10 etc are read first, then 1, 3, 5, 7. In Interleaved
@@ -89,6 +88,8 @@ namespace r2d2::thermal_camera {
          * Sets the mlx90640::pixels frame.
          */
         void set_frame();
+
+        std::array<std::array<float, 32>, 24> &get_frame();
 
         // Max refresh rate of the chip
         static constexpr uint16_t MAX_REFRESH_RATE = 64;

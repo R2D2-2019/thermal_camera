@@ -2,13 +2,12 @@
 
 #include <array>
 #include <dynamic_var.hpp>
-#include <pixel_manipulator.hpp>
 #include <lookupable.hpp>
 #include <mlx90640_i2c.hpp>
 #include <mlx_parameters.hpp>
+#include <pixel_manipulator.hpp>
 #include <registers.hpp>
 #include <static_var.hpp>
-
 
 namespace r2d2::thermal_camera {
     /**
@@ -49,7 +48,7 @@ namespace r2d2::thermal_camera {
 
         /**
          * Calculates all the values for pixels.
-         * 
+         *
          * @param pixel_manipulator_c manipulator - a pixel manipulator.
          */
         void calculate_pixel_value(pixel_manipulator_c &manipulator);
@@ -85,5 +84,8 @@ namespace r2d2::thermal_camera {
          * @param reading_pattern
          */
         void set_reading_pattern(const reading_pattern &pattern);
+        
+
+        std::array<std::array<float, 32>, 24> &get_frame();
     };
 } // namespace r2d2::thermal_camera

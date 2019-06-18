@@ -36,8 +36,10 @@ namespace r2d2::thermal_camera {
 
     mlx90640_processor_c::mlx90640_processor_c(mlx90640_i2c_c &bus,
                                                float emissivity)
-        : bus(bus), params{} {
+        : bus(bus), params{}, pixels{{}} {
         params.emissivity = emissivity;
+
+        hwlib::cout << "mlx90640 initializing...\n";
 
         // Datasheet section 11.1.3
         pix_os_ref_c pix_offset(bus, params);
@@ -88,11 +90,13 @@ namespace r2d2::thermal_camera {
         for (const auto &static_var : static_vars) {
             static_var->extract();
         }
+
+        hwlib::cout << "mlx90640 initialized\n";
     }
 
     void mlx90640_processor_c::init_table(lookupable_c &table) {
-        for (unsigned int i = 1; i <= 24; i++) {     // 24 rows
-            for (unsigned int j = 1; j <= 32; j++) { // 32 cols
+        for (unsigned int i = 1; i <= pixels.size(); i++) {        // 24 rows
+            for (unsigned int j = 1; j <= pixels[i].size(); j++) { // 32 cols
                 table.calculate_pixel(i, j);
             }
         }
@@ -100,8 +104,8 @@ namespace r2d2::thermal_camera {
 
     void mlx90640_processor_c::calculate_pixel_value(
         pixel_manipulator_c &manipulator) {
-        for (unsigned int i = 1; i <= 24; i++) {     // 24 rows
-            for (unsigned int j = 1; j <= 32; j++) { // 32 cols
+        for (unsigned int i = 1; i <= pixels.size(); i++) {        // 24 rows
+            for (unsigned int j = 1; j <= pixels[i].size(); j++) { // 32 cols
                 manipulator.calculate_pixel(i, j);
             }
         }
@@ -161,6 +165,10 @@ namespace r2d2::thermal_camera {
         for (int i = 0; i < 2; i++) {
             calculate_pixel_value(*pixel_calculators[i]);
         }
+    }
+
+    std::array<std::array<float, 32>, 24> &mlx90640_processor_c::get_frame() {
+        return pixels;
     }
 
     void

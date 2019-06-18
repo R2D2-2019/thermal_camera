@@ -81,7 +81,17 @@ namespace r2d2::thermal_camera {
     }
 
     void mlx90640_c::set_frame() {
-        mlx_processor.set_frame();
+        int subpage = 0;
+        if (frame_available()) {
+            while (subpage < 2) {
+                mlx_processor.set_frame();
+                subpage++;
+            }
+        }
+    }
+
+    std::array<std::array<float, 32>, 24> &mlx90640_c::get_frame() {
+        return mlx_processor.get_frame();
     }
 
 } // namespace r2d2::thermal_camera
