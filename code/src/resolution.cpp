@@ -9,6 +9,6 @@ namespace r2d2::thermal_camera {
         int data = bus.read_register(registers::INTERNAL_CONTROL_REGISTER);
         params.res_cor =
             (1u << params.resolution_ee) /
-            (1u << data_extractor_s::extract_data(data, 0x0C00, 10));
+            (1u << data_extractor::extract_data(data, 0x0C00, 10));
     }
 } // namespace r2d2::thermal_camera

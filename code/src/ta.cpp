@@ -10,14 +10,14 @@ namespace r2d2::thermal_camera {
 
         data = bus.read_register(registers::RAM_VDD_PIX);
         float delta_V =
-            static_cast<float>(data_extractor_s::apply_treshold(data));
+            static_cast<float>(data_extractor::apply_treshold(data));
         delta_V = (delta_V - params.Vdd25) / params.Kvdd;
 
         data = bus.read_register(registers::RAM_TA_PTAT);
-        const int Vptat = data_extractor_s::apply_treshold(data);
+        const int Vptat = data_extractor::apply_treshold(data);
 
         data = bus.read_register(registers::RAM_TA_VBE);
-        const int Vbe = data_extractor_s::apply_treshold(data);
+        const int Vbe = data_extractor::apply_treshold(data);
 
         const float Vptat_art =
             (Vptat / (Vptat * params.alpha_ptat + Vbe)) * 262144;

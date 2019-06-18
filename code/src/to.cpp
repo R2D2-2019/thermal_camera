@@ -9,7 +9,7 @@ namespace r2d2::thermal_camera {
         : pixel_manipulator_c(params, pixels), pattern(pattern), alpha(alpha) {
     }
 
-    void to_c::calculate_pixel(int row, int col) {
+    void to_c::calculate_pixel(unsigned int row, unsigned int col) {
         set_patron(row, col, pattern);
         // Datasheet section 11.2.2.8
         float alpha_comp_row_col =

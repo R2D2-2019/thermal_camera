@@ -49,6 +49,8 @@ namespace r2d2::thermal_camera {
 
         /**
          * Calculates all the values for pixels.
+         * 
+         * @param pixel_manipulator_c manipulator - a pixel manipulator.
          */
         void calculate_pixel_value(pixel_manipulator_c &manipulator);
 

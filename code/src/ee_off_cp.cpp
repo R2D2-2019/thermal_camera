@@ -10,10 +10,10 @@ namespace r2d2::thermal_camera {
 
         data = bus.read_register(registers::EE_CP_OFF_DELTA_OFFSET_CP_SP0);
         params.off_cp_sp0 =
-            data_extractor_s::extract_and_treshold(data, 0x03FF, 0, 511, 1024);
+            data_extractor::extract_and_treshold(data, 0x03FF, 0, 511, 1024);
             
         const int off_cp_subpage_1_delta =
-            data_extractor_s::extract_and_treshold(data, 0xFC00, 10, 31, 64);
+            data_extractor::extract_and_treshold(data, 0xFC00, 10, 31, 64);
 
         params.off_cp_sp1 = params.off_cp_sp0 + off_cp_subpage_1_delta;
     }

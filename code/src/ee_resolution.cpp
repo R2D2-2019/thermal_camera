@@ -10,6 +10,6 @@ namespace r2d2::thermal_camera {
         uint16_t data =
             bus.read_register(registers::EE_CTRL_CALIB_KV_KTA_SCALE);
         params.resolution_ee =
-            data_extractor_s::extract_data(data, 0x3000, 12);
+            data_extractor::extract_data(data, 0x3000, 12);
     }
 } // namespace r2d2::thermal_camera

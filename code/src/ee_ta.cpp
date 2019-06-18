@@ -10,19 +10,19 @@ namespace r2d2::thermal_camera {
 
         data = bus.read_register(registers::EE_KV_KT_PTAT);
         params.KVptat = static_cast<float>(
-            data_extractor_s::extract_and_treshold(data, 0xFC00, 10, 31, 64));
+            data_extractor::extract_and_treshold(data, 0xFC00, 10, 31, 64));
         params.KVptat /= 4096;
 
         params.KTptat = static_cast<float>(
-            data_extractor_s::extract_and_treshold(data, 0x03FF, 0, 511, 1024));
+            data_extractor::extract_and_treshold(data, 0x03FF, 0, 511, 1024));
         params.KTptat /= 8;
 
         data = bus.read_register(registers::EE_PTAT25);
-        params.Vptat25 = data_extractor_s::apply_treshold(data);
+        params.Vptat25 = data_extractor::apply_treshold(data);
 
         data = bus.read_register(registers::EE_SCALE_OCC);
         params.alpha_ptat = static_cast<float>(
-            data_extractor_s::extract_data(data, 0xF000, 12));
+            data_extractor::extract_data(data, 0xF000, 12));
         params.alpha_ptat = (params.alpha_ptat / 4) + 8;
     }
 } // namespace r2d2::thermal_camera

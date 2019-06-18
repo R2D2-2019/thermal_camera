@@ -84,15 +84,15 @@ namespace r2d2::thermal_camera {
         static_vars = {&ee_vdd, &ee_ta,  &ee_gain,    &tgc,       &ksta,
                        &ct,     &ksto,   &alpha_corr, &alpha_cp,  &cp_offset,
                        &kv_cp,  &kta_cp, &tgc,        &resolution};
-
+        // Sets all EEPROM data in mlx params
         for (const auto &static_var : static_vars) {
             static_var->extract();
         }
     }
 
     void mlx90640_processor_c::init_table(lookupable_c &table) {
-        for (int i = 1; i <= 24; i++) {     // 24 rows
-            for (int j = 1; j <= 32; j++) { // 32 cols
+        for (unsigned int i = 1; i <= 24; i++) {     // 24 rows
+            for (unsigned int j = 1; j <= 32; j++) { // 32 cols
                 table.calculate_pixel(i, j);
             }
         }
@@ -100,8 +100,8 @@ namespace r2d2::thermal_camera {
 
     void mlx90640_processor_c::calculate_pixel_value(
         pixel_manipulator_c &manipulator) {
-        for (int i = 1; i <= 24; i++) {     // 24 rows
-            for (int j = 1; j <= 32; j++) { // 32 cols
+        for (unsigned int i = 1; i <= 24; i++) {     // 24 rows
+            for (unsigned int j = 1; j <= 32; j++) { // 32 cols
                 manipulator.calculate_pixel(i, j);
             }
         }

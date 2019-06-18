@@ -6,7 +6,7 @@ namespace r2d2::thermal_camera {
         : pixels(pixels), params(params) {
     }
 
-    void pixel_manipulator_c::set_patron(int row, int col,
+    void pixel_manipulator_c::set_patron(unsigned int row, unsigned int col,
                                          const reading_pattern pattern) {
         int pixel_number = ((row - 1) << 5) + col;
         patron =

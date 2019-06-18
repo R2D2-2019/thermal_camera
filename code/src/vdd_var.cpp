@@ -10,7 +10,7 @@ namespace r2d2::thermal_camera {
         int data;
 
         data = bus.read_register(registers::RAM_VDD_PIX);
-        const int ram_vdd_pix = data_extractor_s::apply_treshold(data);
+        const int ram_vdd_pix = data_extractor::apply_treshold(data);
         params.Vdd =
             ((params.res_cor * ram_vdd_pix - params.Vdd25) / params.Kvdd) +
             params.VDD0;

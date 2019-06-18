@@ -10,7 +10,7 @@ namespace r2d2::thermal_camera {
           pix_os_ref(pix_os_ref) {
     }
 
-    void pix_os_c::calculate_pixel(int row, int col) {
+    void pix_os_c::calculate_pixel(unsigned int row, unsigned int col) {
         pixels[row - 1][col - 1] =
             pixels[row - 1][col - 1] -
             pix_os_ref.get_value(row, col) *

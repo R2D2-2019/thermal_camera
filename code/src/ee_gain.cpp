@@ -7,6 +7,6 @@ namespace r2d2::thermal_camera {
 
     void ee_gain_c::extract() {
         int data = bus.read_register(registers::EE_GAIN);
-        params.ee_gain = data_extractor_s::apply_treshold(data);
+        params.ee_gain = data_extractor::apply_treshold(data);
     }
 } // namespace r2d2::thermal_camera

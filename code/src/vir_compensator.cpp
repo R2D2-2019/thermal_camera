@@ -6,7 +6,7 @@ namespace r2d2::thermal_camera {
         : pixel_manipulator_c(params, pixels) {
     }
 
-    void vir_compensator::calculate_pixel(int row, int col) {
+    void vir_compensator::calculate_pixel(unsigned int row, unsigned int col) {
         pixels[row - 1][col - 1] /= params.emissivity;
     }
 

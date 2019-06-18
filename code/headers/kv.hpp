@@ -8,6 +8,6 @@ namespace r2d2::thermal_camera {
     public:
         kv_c(mlx90640_i2c_c &bus, mlx_parameters_s &params);
 
-        void calculate_pixel(int row, int col) override;
+        void calculate_pixel(unsigned int row, unsigned int col) override;
     };
 } // namespace r2d2::thermal_camera

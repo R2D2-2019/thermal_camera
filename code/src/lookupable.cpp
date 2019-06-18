@@ -5,12 +5,12 @@ namespace r2d2::thermal_camera {
         : bus(bus), params(params) {
     }
 
-    int lookupable_c::get_pixel_number(int row, int col) const {
+    int lookupable_c::get_pixel_number(unsigned int row, unsigned int col) const {
         // row * 32 =  row << 5
         return ((row - 1) << 5) + col;
     }
 
-    float lookupable_c::get_value(int row, int col) {
+    float lookupable_c::get_value(unsigned int row, unsigned int col) {
         return table[row - 1][col - 1];
     }
 

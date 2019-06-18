@@ -1,8 +1,8 @@
 #pragma once
 
+#include <data_extractor.hpp>
 #include <mlx90640_i2c.hpp>
 #include <mlx_parameters.hpp>
-#include <data_extractor.hpp>
 
 namespace r2d2::thermal_camera {
     /**
@@ -16,8 +16,16 @@ namespace r2d2::thermal_camera {
         mlx_parameters_s &params;
 
     public:
+        /**
+         * @param mlx90640_i2c_bus bus - i2c bus for mlx90640.
+         * @param mlx_parameters_s params - the mlx90640 EEPROM parameters.
+         */
         static_var_c(mlx90640_i2c_c &bus, mlx_parameters_s &params);
 
+        /**
+         * Extracts EEPROM data from the MLX90640 chip and stores it into
+         * MLX90640Parameters
+         */
         virtual void extract() = 0;
     };
 } // namespace r2d2::thermal_camera

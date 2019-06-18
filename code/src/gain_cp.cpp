@@ -9,9 +9,9 @@ namespace r2d2::thermal_camera {
         int data;
         
         data = bus.read_register(registers::RAM_CP_SP0);
-        params.pix_gain_cp_sp0 = data_extractor_s::apply_treshold(data) * params.Kgain;
+        params.pix_gain_cp_sp0 = data_extractor::apply_treshold(data) * params.Kgain;
 
         data = bus.read_register(registers::RAM_CP_SP1);
-        params.pix_gain_cp_sp1 = data_extractor_s::apply_treshold(data) * params.Kgain;
+        params.pix_gain_cp_sp1 = data_extractor::apply_treshold(data) * params.Kgain;
     }
 } // namespace r2d2::thermal_camera

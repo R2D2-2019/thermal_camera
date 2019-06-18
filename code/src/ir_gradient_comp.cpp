@@ -7,7 +7,7 @@ namespace r2d2::thermal_camera {
         : pixel_manipulator_c(params, pixels), pattern(pattern) {
     }
 
-    void ir_gradient_comp::calculate_pixel(int row, int col) {
+    void ir_gradient_comp::calculate_pixel(unsigned int row, unsigned int col) {
         set_patron(row, col, pattern);
         pixels[row - 1][row - 1] =
             pixels[row - 1][col - 1] -

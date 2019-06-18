@@ -5,7 +5,7 @@ namespace r2d2::thermal_camera {
         : lookupable_c(bus, params) {
     }
 
-    void kv_c::calculate_pixel(int row, int col) {
+    void kv_c::calculate_pixel(unsigned int row, unsigned int col) {
         int data;
 
         const uint8_t row_odd = row % 2;
@@ -17,11 +17,11 @@ namespace r2d2::thermal_camera {
         const uint16_t Kv_mask = 0x000F << shift;
 
         data = bus.read_register(registers::EE_KV_AVG);
-        float Kv_row_col = static_cast<float>(data_extractor_s::extract_and_treshold(
+        float Kv_row_col = static_cast<float>(data_extractor::extract_and_treshold(
             data, Kv_mask, shift, 7, 16));
 
         data = bus.read_register(registers::EE_CTRL_CALIB_KV_KTA_SCALE);
-        const int Kv_scale = data_extractor_s::extract_data(data, 0x0F00, 8);
+        const int Kv_scale = data_extractor::extract_data(data, 0x0F00, 8);
 
         table[row - 1][col - 1] = Kv_row_col / (1u << Kv_scale);
     }

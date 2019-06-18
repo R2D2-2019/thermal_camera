@@ -12,14 +12,14 @@ namespace r2d2::thermal_camera {
         data = bus.read_register(registers::EE_ALPHA_ACC_SCALE);
 
         const int alpha_scale_cp =
-            data_extractor_s::extract_data(data, 0xF000, 12) + 27;
+            data_extractor::extract_data(data, 0xF000, 12) + 27;
 
         data = bus.read_register(registers::EE_CP_SP0_ALPHA);
         const int CP_P1_P0_ratio =
-            data_extractor_s::extract_and_treshold(data, 0xFC00, 10, 31, 64);
+            data_extractor::extract_and_treshold(data, 0xFC00, 10, 31, 64);
 
         params.alpha_cp_sp_0 =
-            data_extractor_s::extract_data(data, 0x03FF, 0) /
+            data_extractor::extract_data(data, 0x03FF, 0) /
             std::pow(
                 2,
                 alpha_scale_cp); // use std pow, bitshifting can cause overflow

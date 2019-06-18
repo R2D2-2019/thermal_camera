@@ -22,7 +22,7 @@ namespace r2d2::thermal_camera {
         case reading_pattern::INTERLEAVED_MODE:
     	    int data = bus.read_register(registers::EE_CHESS_CX);
             float IL_chess_c1 =
-                static_cast<float>(data_extractor_s::extract_and_treshold(
+                static_cast<float>(data_extractor::extract_and_treshold(
                     data, 0x003F, 0, 31, 64));
             IL_chess_c1 /= 16.f;
             params.pix_os_cp_sp1 = params.pix_gain_cp_sp1 -

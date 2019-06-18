@@ -5,7 +5,7 @@ namespace r2d2::thermal_camera {
         : lookupable_c(bus, params) {
     }
 
-    void kta_c::calculate_pixel(int row, int col) {
+    void kta_c::calculate_pixel(unsigned int row, unsigned int col) {
         int data;
 
         uint16_t offset_addr =
@@ -13,7 +13,7 @@ namespace r2d2::thermal_camera {
 
         data = bus.read_register(offset_addr);
         const int Kta_ee =
-            data_extractor_s::extract_and_treshold(data, 0x000E, 1, 3, 8);
+            data_extractor::extract_and_treshold(data, 0x000E, 1, 3, 8);
 
         const uint8_t row_even = !(row % 2);
         const uint8_t col_even = !(col % 2);
@@ -27,13 +27,13 @@ namespace r2d2::thermal_camera {
         /* from Kta_rc_ee_addr, & it with Kta_rc_ee_mask, shift it with either 8
          or 0 spots*/
         data = bus.read_register(Kta_rc_ee_addr);
-        const int Kta_rc_ee = data_extractor_s::extract_and_treshold(
+        const int Kta_rc_ee = data_extractor::extract_and_treshold(
             data, Kta_rc_ee_mask, 8 * row_odd, 127, 256);
 
         data = bus.read_register(registers::EE_CTRL_CALIB_KV_KTA_SCALE);
         const int Kta_scale_1 =
-            data_extractor_s::extract_data(data, 0x00F0, 4) + 8;
-        const int Kta_scale_2 = data_extractor_s::extract_data(data, 0x00F, 0);
+            data_extractor::extract_data(data, 0x00F0, 4) + 8;
+        const int Kta_scale_2 = data_extractor::extract_data(data, 0x00F, 0);
 
         // Here, 1 << x equals 2^x again
         table[row - 1][col - 1] =

@@ -22,7 +22,7 @@ namespace r2d2::thermal_camera {
         /**
          * Changes nth bit to 'to' in 'source'.
          *
-         * @param int source. The to be changed value.
+         * @param uint16_t source. The to be changed value.
          * @param uint8_t n. The nth bit to be toggled.
          * @param bool to. This value represents the value it has to be changed
          * to. Either has to be a 0 or a 1.

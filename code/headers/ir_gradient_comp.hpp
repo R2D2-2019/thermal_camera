@@ -13,6 +13,6 @@ namespace r2d2::thermal_camera {
                          std::array<std::array<float, 32>, 24> &pixels,
                          const reading_pattern pattern);
 
-        void calculate_pixel(int row, int col);
+        void calculate_pixel(unsigned int row, unsigned int col);
     };
 } // namespace r2d2::thermal_camera
