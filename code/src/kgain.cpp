@@ -7,6 +7,6 @@ namespace r2d2::thermal_camera {
 
     void kgain_c::re_calculate() {
         int ram_gain = bus.read_register(registers::RAM_GAIN);
-        params.Kgain = ram_gain / params.ee_gain;
+        params.Kgain = static_cast<float>(ram_gain) / params.ee_gain;
     }
 } // namespace r2d2::thermal_camera
