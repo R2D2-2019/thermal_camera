@@ -1,5 +1,3 @@
-#include <limits>
-#include <math.h>
 #include <mlx90640.hpp>
 
 using namespace r2d2::thermal_camera;
@@ -10,10 +8,14 @@ int main() {
     WDT->WDT_MR = WDT_MR_WDDIS;
     hwlib::wait_ms(1000);
     i2c_bus_c bus(i2c_bus_c::interface::interface_1, 400'000);
-    mlx90640_c thermal_cam(bus, 1);
+
+    float emissivity = 1;
+    int refresh_rate = 2;
+    mlx90640_c thermal_cam(bus, emissivity, refresh_rate);
 
     while (true) {
-       (thermal_cam.get_pixel(3, 3));
-       (thermal_cam.get_pixel(3, 4));
+        if (thermal_cam.frame_available()) {
+            thermal_cam.set_frame();
+        }
     }
 }
