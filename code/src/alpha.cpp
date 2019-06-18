@@ -39,14 +39,12 @@ namespace r2d2::thermal_camera {
             bus.read_register(registers::EE_PIX_SENSITIVITY_AVG); // alpha ref
 
         // alpha(i, j) can get x E-07 or smaller
-        table[row - 1]
-             [col - 1] = /* in this calculation data equals alpha ref */
-            (data + ACC_row * (1 << ACC_scale_row) +
-             ACC_col * (1 << ACC_scale_col) +
-             alpha_pixel_row_col * (1 << ACC_scale_rem)) /
-            std::pow(
-                2,
-                alpha_scale); // Here we use std::pow because alpha_scale
-                              // can get up to 38, which can cause an overflow
+        /* in this calculation data equals alpha ref */
+        table[row - 1][col - 1] =
+            (data + ACC_row * std::pow(2, ACC_scale_row) +
+             ACC_col * std::pow(2, ACC_scale_col) +
+             alpha_pixel_row_col * std::pow(2, ACC_scale_rem));
+
+        table[row - 1][col - 1] /= std::pow(2, alpha_scale);
     }
 } // namespace r2d2::thermal_camera
