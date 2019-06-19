@@ -3,6 +3,9 @@
 namespace r2d2::thermal_camera {
     kta_c::kta_c(mlx90640_i2c_c &bus, mlx_parameters_s &params)
         : lookupable_c(bus, params) {
+        int data = bus.read_register(registers::EE_CTRL_CALIB_KV_KTA_SCALE);
+        Kta_scale_1 = data_extractor::extract_data(data, 0x00F0, 4) + 8;
+        Kta_scale_2 = data_extractor::extract_data(data, 0x00F, 0);
     }
 
     void kta_c::calculate_pixel(unsigned int row, unsigned int col) {
@@ -30,14 +33,8 @@ namespace r2d2::thermal_camera {
         const int Kta_rc_ee = data_extractor::extract_and_treshold(
             data, Kta_rc_ee_mask, 8 * row_odd, 127, 256);
 
-        data = bus.read_register(registers::EE_CTRL_CALIB_KV_KTA_SCALE);
-        const int Kta_scale_1 =
-            data_extractor::extract_data(data, 0x00F0, 4) + 8;
-        const int Kta_scale_2 = data_extractor::extract_data(data, 0x00F, 0);
-
         // Here, 1 << x equals 2^x again
-        table[row - 1][col - 1] =
-            (Kta_rc_ee + Kta_ee * (1u << Kta_scale_2));
+        table[row - 1][col - 1] = (Kta_rc_ee + Kta_ee * (1u << Kta_scale_2));
         table[row - 1][col - 1] /= (1ll << Kta_scale_1);
     }
 } // namespace r2d2::thermal_camera

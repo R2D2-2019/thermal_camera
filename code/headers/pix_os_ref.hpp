@@ -5,9 +5,10 @@
 namespace r2d2::thermal_camera {
     class pix_os_ref_c : public lookupable_c {
     private:
-        float get_pix_gain(const int row, const int col,
-                           mlx_parameters_s &params) const;
-
+        int offset_average;
+        int Occ_scale_row;
+        int Occ_scale_col;
+        int Occ_scale_rem;
     public:
         pix_os_ref_c(mlx90640_i2c_c &bus, mlx_parameters_s &params);
 

@@ -12,7 +12,7 @@ namespace r2d2::thermal_camera {
         params.KVptat = static_cast<float>(
             data_extractor::extract_and_treshold(data, 0xFC00, 10, 31, 64));
         params.KVptat /= 4096;
-
+        
         params.KTptat = static_cast<float>(
             data_extractor::extract_and_treshold(data, 0x03FF, 0, 511, 1024));
         params.KTptat /= 8;

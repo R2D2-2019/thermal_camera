@@ -17,6 +17,7 @@ namespace r2d2::thermal_camera {
              params.TGC * ((1 - patron) * params.alpha_cp_sp_0 +
                            patron * params.alpha_cp_sp_1)) *
             (1 + params.KsTa * (params.Ta - params.TA0));
+
         // Datasheet section 11.2.2.9
         /* Tak4, Trk4 and Ta_r can be 10 digits long. */
         const long double Tak4 = std::pow((params.Ta + 273.15), 4);
@@ -38,5 +39,7 @@ namespace r2d2::thermal_camera {
                      Sx_row_col) +
                 Ta_r)) -
             273.15;
+
+
     }
 } // namespace r2d2::thermal_camera
