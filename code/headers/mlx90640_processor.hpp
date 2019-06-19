@@ -28,7 +28,7 @@ namespace r2d2::thermal_camera {
         std::array<dynamic_var_c *, 4> dynamic_vars;
 
         // Static variables stored in device EEPROM
-        std::array<static_var_c *, 14> static_vars;
+        std::array<static_var_c *, 13> static_vars;
 
         // Lookuptables, static as well
         std::array<lookupable_c *, 4> lookupables;

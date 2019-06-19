@@ -39,7 +39,7 @@ namespace r2d2::thermal_camera {
         : bus(bus), params{}, pixels{{}} {
         params.emissivity = emissivity;
 
-        hwlib::cout << "mlx90640 initializing...\n";
+        hwlib::cout << "Mlx90640 initializing...\n";
 
         // Datasheet section 11.1.3
         pix_os_ref_c pix_offset(bus, params);
@@ -52,8 +52,8 @@ namespace r2d2::thermal_camera {
 
         lookupables = {&pix_offset, &alpha, &kv, &kta};
 
-        for (const auto &l : lookupables) {
-            init_table(*l);
+        for (const auto &table : lookupables) {
+            init_table(*table);
         }
 
         // Datasheet section 11.1.1
@@ -83,15 +83,15 @@ namespace r2d2::thermal_camera {
         // Datasheet section 11.1.17
         ee_resolution_c resolution(bus, params);
 
-        static_vars = {&ee_vdd, &ee_ta,  &ee_gain,    &tgc,       &ksta,
-                       &ct,     &ksto,   &alpha_corr, &alpha_cp,  &cp_offset,
-                       &kv_cp,  &kta_cp, &tgc,        &resolution};
+        static_vars = {&ee_vdd, &ee_ta,      &ee_gain,   &ksta,      &ct,
+                       &ksto,   &alpha_corr, &alpha_cp,  &cp_offset, &kv_cp,
+                       &kta_cp, &tgc,        &resolution};
         // Sets all EEPROM data in mlx params
         for (const auto &static_var : static_vars) {
             static_var->extract();
         }
 
-        hwlib::cout << "mlx90640 initialized\n";
+        hwlib::cout << "Mlx90640 initialized!\n";
     }
 
     void mlx90640_processor_c::init_table(lookupable_c &table) {
@@ -157,13 +157,20 @@ namespace r2d2::thermal_camera {
 
         // Datasheet section 11.2.2.7
         ir_gradient_comp ir_gradient(params, pixels, pattern);
-        // Datasheet section 11.2.2.8
+        // Datasheet section 11.2.2.8 + datasheet section 11.2.2.9
         to_c to(params, pixels, pattern, *lookupables[ALPHA]);
 
         pixel_calculators = {&ir_gradient, &to};
 
         for (int i = 0; i < 2; i++) {
             calculate_pixel_value(*pixel_calculators[i]);
+        }
+
+        for (const auto &col : pixels) {
+            for (const auto &p : col) {
+                hwlib::cout << static_cast<int>(p) << ' ';
+            }
+            hwlib::cout << '\n';
         }
     }
 

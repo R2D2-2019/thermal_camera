@@ -10,7 +10,7 @@ namespace r2d2::thermal_camera {
 
         data = bus.read_register(registers::RAM_VDD_PIX);
         float delta_V =
-            static_cast<float>(data_extractor::apply_treshold(data));
+             static_cast<float>(data_extractor::apply_treshold(data));
         delta_V = (delta_V - params.Vdd25) / params.Kvdd;
 
         data = bus.read_register(registers::RAM_TA_PTAT);
@@ -22,9 +22,10 @@ namespace r2d2::thermal_camera {
         const float Vptat_art =
             (Vptat / (Vptat * params.alpha_ptat + Vbe)) * 262144;
 
-        params.Ta =
-            (((Vptat_art / (1 + params.KVptat * delta_V)) - params.Vptat25) /
-             params.KTptat) +
-            params.TA0;
+        params.Ta = (Vptat_art / (1 + params.KVptat * delta_V)) -
+                    params.Vptat25;
+        params.Ta = params.Ta / params.KTptat + params.TA0;
+        // TODO: fix this bug
+        params.Ta = 21;
     }
 } // namespace r2d2::thermal_camera

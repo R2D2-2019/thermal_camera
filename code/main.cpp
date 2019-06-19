@@ -15,11 +15,5 @@ int main() {
 
     while (true) {
         thermal_cam.set_frame();
-        /*for (const auto& row : thermal_cam.get_frame()) {
-            for (const auto& col : row) {
-                hwlib::cout << (int)col << ' ';
-            }
-            hwlib::cout << hwlib::endl;
-        }*/
     }
 }
