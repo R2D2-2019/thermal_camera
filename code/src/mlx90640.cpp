@@ -82,8 +82,8 @@ namespace r2d2::thermal_camera {
 
     void mlx90640_c::set_frame() {
         int subpage = 0;
-        if (frame_available()) {
-            while (subpage < 2) {
+        while (subpage < 2) {
+            if (frame_available()) {
                 mlx_processor.set_frame();
                 subpage++;
             }

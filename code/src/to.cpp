@@ -32,14 +32,38 @@ namespace r2d2::thermal_camera {
         Sx_row_col =
             params.ksto2 * std::sqrt(std::sqrt(Sx_row_col)); // 4th sqrt
 
+        float To = std::sqrt(std::sqrt(
+                       pixels[row - 1][col - 1] /
+                           (alpha_comp_row_col * (1 - params.ksto2 * 273.15) +
+                            Sx_row_col) +
+                       Ta_r)) -
+                   273.15;
+
+        float ct, ksto, alpha_range;
+
+        if (To < params.ct2) {
+            ct = params.ct1;
+            ksto = params.ksto1;
+            alpha_range = params.alpha_corr_range1;
+        } else if (To < params.ct3) {
+            ct = params.ct2;
+            ksto = params.ksto2;
+            alpha_range = params.alpha_corr_range2;
+        } else if (To < params.ct4) {
+            ct = params.ct3;
+            ksto = params.ksto3;
+            alpha_range = params.alpha_corr_range3;
+        } else {
+            ct = params.ct4;
+            ksto = params.ksto4;
+            alpha_range = params.alpha_corr_range4;
+        }
+        // Datasheet section 11.2.2.9.1.3
         pixels[row - 1][col - 1] =
             std::sqrt(std::sqrt(
                 pixels[row - 1][col - 1] /
-                    (alpha_comp_row_col * (1 - params.ksto2 * 273.15) +
-                     Sx_row_col) +
+                    (alpha_comp_row_col * alpha_range * (1 + ksto * (To - ct))) +
                 Ta_r)) -
             273.15;
-
-
     }
 } // namespace r2d2::thermal_camera
