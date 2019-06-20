@@ -1,36 +1,9 @@
 #include <mlx90640_processor.hpp>
 
-#include <lookupables/alpha.hpp>
-#include <lookupables/kta.hpp>
-#include <lookupables/kv.hpp>
-#include <lookupables/pix_os_ref.hpp>
-
-#include <dynamic_vars/gain_cp.hpp>
-#include <dynamic_vars/kgain.hpp>
-#include <dynamic_vars/off_ta_vdd_cp.hpp>
-#include <dynamic_vars/resolution.hpp>
-#include <dynamic_vars/ta.hpp>
-#include <dynamic_vars/vdd_var.hpp>
-
-#include <pixel_manipulators/gain_comp.hpp>
-#include <pixel_manipulators/ir_gradient_comp.hpp>
-#include <pixel_manipulators/pix_os.hpp>
-#include <pixel_manipulators/to.hpp>
-#include <pixel_manipulators/vir_compensator.hpp>
-
-#include <static_vars/alpha_corr.hpp>
-#include <static_vars/alpha_cp.hpp>
-#include <static_vars/ee_corner_temp.hpp>
-#include <static_vars/ee_gain.hpp>
-#include <static_vars/ee_ksta.hpp>
-#include <static_vars/ee_ksto.hpp>
-#include <static_vars/ee_kta_cp.hpp>
-#include <static_vars/ee_kv_cp.hpp>
-#include <static_vars/ee_off_cp.hpp>
-#include <static_vars/ee_resolution.hpp>
-#include <static_vars/ee_ta.hpp>
-#include <static_vars/ee_tgc_extractor.hpp>
-#include <static_vars/ee_vdd.hpp>
+#include <lookupables/lookupables.hpp>
+#include <dynamic_vars/dynamic_vars.hpp>
+#include <static_vars/static_vars.hpp>
+#include <pixel_manipulators/pixel_manipulators.hpp>
 
 namespace r2d2::thermal_camera {
 
