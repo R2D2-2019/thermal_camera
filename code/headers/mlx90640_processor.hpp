@@ -1,13 +1,13 @@
 #pragma once
 
 #include <array>
-#include <dynamic_var.hpp>
-#include <lookupable.hpp>
+#include <dynamic_vars/dynamic_var.hpp>
+#include <lookupables/lookupable.hpp>
 #include <mlx90640_i2c.hpp>
 #include <mlx_parameters.hpp>
-#include <pixel_manipulator.hpp>
+#include <pixel_manipulators/pixel_manipulator.hpp>
 #include <registers.hpp>
-#include <static_var.hpp>
+#include <static_vars/static_var.hpp>
 
 namespace r2d2::thermal_camera {
     /**

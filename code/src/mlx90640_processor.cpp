@@ -1,36 +1,36 @@
 #include <mlx90640_processor.hpp>
 
-#include <alpha.hpp>
-#include <kta.hpp>
-#include <kv.hpp>
-#include <pix_os_ref.hpp>
+#include <lookupables/alpha.hpp>
+#include <lookupables/kta.hpp>
+#include <lookupables/kv.hpp>
+#include <lookupables/pix_os_ref.hpp>
 
-#include <gain_cp.hpp>
-#include <kgain.hpp>
-#include <off_ta_vdd_cp.hpp>
-#include <resolution.hpp>
-#include <ta.hpp>
-#include <vdd_var.hpp>
+#include <dynamic_vars/gain_cp.hpp>
+#include <dynamic_vars/kgain.hpp>
+#include <dynamic_vars/off_ta_vdd_cp.hpp>
+#include <dynamic_vars/resolution.hpp>
+#include <dynamic_vars/ta.hpp>
+#include <dynamic_vars/vdd_var.hpp>
 
-#include <gain_comp.hpp>
-#include <ir_gradient_comp.hpp>
-#include <pix_os.hpp>
-#include <to.hpp>
-#include <vir_compensator.hpp>
+#include <pixel_manipulators/gain_comp.hpp>
+#include <pixel_manipulators/ir_gradient_comp.hpp>
+#include <pixel_manipulators/pix_os.hpp>
+#include <pixel_manipulators/to.hpp>
+#include <pixel_manipulators/vir_compensator.hpp>
 
-#include <alpha_corr.hpp>
-#include <alpha_cp.hpp>
-#include <ee_corner_temp.hpp>
-#include <ee_gain.hpp>
-#include <ee_ksta.hpp>
-#include <ee_ksto.hpp>
-#include <ee_kta_cp.hpp>
-#include <ee_kv_cp.hpp>
-#include <ee_off_cp.hpp>
-#include <ee_resolution.hpp>
-#include <ee_ta.hpp>
-#include <ee_tgc_extractor.hpp>
-#include <ee_vdd.hpp>
+#include <static_vars/alpha_corr.hpp>
+#include <static_vars/alpha_cp.hpp>
+#include <static_vars/ee_corner_temp.hpp>
+#include <static_vars/ee_gain.hpp>
+#include <static_vars/ee_ksta.hpp>
+#include <static_vars/ee_ksto.hpp>
+#include <static_vars/ee_kta_cp.hpp>
+#include <static_vars/ee_kv_cp.hpp>
+#include <static_vars/ee_off_cp.hpp>
+#include <static_vars/ee_resolution.hpp>
+#include <static_vars/ee_ta.hpp>
+#include <static_vars/ee_tgc_extractor.hpp>
+#include <static_vars/ee_vdd.hpp>
 
 namespace r2d2::thermal_camera {
 
@@ -168,10 +168,11 @@ namespace r2d2::thermal_camera {
 
         for (const auto &col : pixels) {
             for (const auto &p : col) {
-                hwlib::cout << static_cast<int>(p) << ' ';
+                hwlib::cout << hwlib::setw(3) << static_cast<int>(p) << ' ';
             }
-            hwlib::cout << '\n';
+            hwlib::cout << "\n";
         }
+        hwlib::cout << "\n\n\n\n";
     }
 
     std::array<std::array<float, 32>, 24> &mlx90640_processor_c::get_frame() {
