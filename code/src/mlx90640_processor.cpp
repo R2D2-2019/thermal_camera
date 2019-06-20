@@ -1,93 +1,181 @@
-#include <alpha_comp_extractor.hpp>
-#include <cmath>
-#include <cp_compensator.hpp>
-#include <data_extractor.hpp>
-#include <kgain.hpp>
-#include <kv_coefficient.hpp>
 #include <mlx90640_processor.hpp>
-#include <patron_extractor.hpp>
+
+#include <alpha.hpp>
+#include <kta.hpp>
+#include <kv.hpp>
+#include <pix_os_ref.hpp>
+
+#include <gain_cp.hpp>
+#include <kgain.hpp>
+#include <off_ta_vdd_cp.hpp>
+#include <resolution.hpp>
+#include <ta.hpp>
+#include <vdd_var.hpp>
+
+#include <gain_comp.hpp>
+#include <ir_gradient_comp.hpp>
 #include <pix_os.hpp>
-#include <ta_extractor.hpp>
-#include <tgc_extractor.hpp>
-#include <to_extractor.hpp>
-#include <vir_extractor.hpp>
+#include <to.hpp>
+#include <vir_compensator.hpp>
+
+#include <alpha_corr.hpp>
+#include <alpha_cp.hpp>
+#include <ee_corner_temp.hpp>
+#include <ee_gain.hpp>
+#include <ee_ksta.hpp>
+#include <ee_ksto.hpp>
+#include <ee_kta_cp.hpp>
+#include <ee_kv_cp.hpp>
+#include <ee_off_cp.hpp>
+#include <ee_resolution.hpp>
+#include <ee_ta.hpp>
+#include <ee_tgc_extractor.hpp>
+#include <ee_vdd.hpp>
 
 namespace r2d2::thermal_camera {
 
     mlx90640_processor_c::mlx90640_processor_c(mlx90640_i2c_c &bus,
                                                float emissivity)
-        : bus(bus) {
-        set_resolution_correlation(); // datasheet page 35, just 1 call
-        set_Vdd();                    // datasheet page 36, just 1 call
+        : bus(bus), params{}, pixels{{}} {
         params.emissivity = emissivity;
+
+        hwlib::cout << "Mlx90640 initializing...\n";
+
+        // Datasheet section 11.1.3
+        pix_os_ref_c pix_offset(bus, params);
+        // Datasheet section 11.1.4
+        alpha_c alpha(bus, params);
+        // Datasheet section 11.1.5
+        kv_c kv(bus, params);
+        // Datasheet section 11.1.6
+        kta_c kta(bus, params);
+
+        lookupables = {&pix_offset, &alpha, &kv, &kta};
+
+        for (const auto &table : lookupables) {
+            init_table(*table);
+        }
+
+        // Datasheet section 11.1.1
+        ee_vdd_c ee_vdd(bus, params);
+        // Datasheet section 11.1.2
+        ee_ta_c ee_ta(bus, params);
+        // Datasheet section 11.1.7
+        ee_gain_c ee_gain(bus, params);
+        // Datasheet section 11.1.8
+        ee_ksta_c ksta(bus, params);
+        // Datasheet section 11.1.9
+        ee_corner_temp_c ct(bus, params);
+        // Datasheet section 11.1.10
+        ee_ksto_c ksto(bus, params);
+        // Datasheet section 11.1.11
+        alpha_corr_c alpha_corr(bus, params);
+        // Datasheet section 11.1.12
+        alpha_cp_c alpha_cp(bus, params);
+        // Datasheet section 11.1.13
+        ee_off_cp_c cp_offset(bus, params);
+        // Datasheet section 11.1.14
+        ee_kv_cp_c kv_cp(bus, params);
+        // Datasheet section 11.1.15
+        ee_kta_cp_c kta_cp(bus, params);
+        // Datasheet section 11.1.16
+        ee_tgc_extractor_c tgc(bus, params);
+        // Datasheet section 11.1.17
+        ee_resolution_c resolution(bus, params);
+
+        static_vars = {&ee_vdd, &ee_ta,      &ee_gain,   &ksta,      &ct,
+                       &ksto,   &alpha_corr, &alpha_cp,  &cp_offset, &kv_cp,
+                       &kta_cp, &tgc,        &resolution};
+        // Sets all EEPROM data in mlx params
+        for (const auto &static_var : static_vars) {
+            static_var->extract();
+        }
+
+        hwlib::cout << "Mlx90640 initialized!\n";
     }
-    // Function is only to be called once.
-    void mlx90640_processor_c::set_resolution_correlation() {
-        uint16_t data =
-            bus.read_register(registers::EE_CTRL_CALIB_KV_KTA_SCALE);
-        uint16_t resolution_ee =
-            data_extractor_s::extract_data(data, 0x3000, 12);
-        data = bus.read_register(registers::INTERNAL_CONTROL_REGISTER);
-        uint16_t resolution_reg =
-            data_extractor_s::extract_data(data, 0x0C00, 10);
-        // (2^resolution_ee) = (1 << resolution_ee)
-        resolution_ee = (1u << resolution_ee);
-        resolution_reg = (1u << resolution_reg);
-        params.res_cor = static_cast<uint8_t>(resolution_ee / resolution_reg);
+
+    void mlx90640_processor_c::init_table(lookupable_c &table) {
+        for (unsigned int i = 1; i <= pixels.size(); i++) {        // 24 rows
+            for (unsigned int j = 1; j <= pixels[i].size(); j++) { // 32 cols
+                table.calculate_pixel(i, j);
+            }
+        }
     }
 
-    // Function is only to be called once.
-    void mlx90640_processor_c::set_Vdd() {
-        int data = bus.read_register(registers::EE_VDD_PIX);
-
-        params.Kvdd =
-            data_extractor_s::extract_and_treshold(data, 0xFF00, 8, 127, 256);
-        // (Kvdd * 2^y) = (Kvdd << y)
-        params.Kvdd <<= 5;
-
-        params.Vdd25 = data_extractor_s::extract_data(data, 0x00FF, 0);
-        // (x * 2^y) = (x << y)
-        params.Vdd25 = ((params.Vdd25 - 256) << 5) - 8192;
-
-        data = bus.read_register(registers::RAM_VDD_PIX);
-        const int ram_vdd_pix = data_extractor_s::apply_treshold(data);
-        params.Vdd =
-            ((params.res_cor * ram_vdd_pix - params.Vdd25) / params.Kvdd) +
-            params.VDD0;
+    void mlx90640_processor_c::calculate_pixel_value(
+        pixel_manipulator_c &manipulator) {
+        for (unsigned int i = 1; i <= pixels.size(); i++) {        // 24 rows
+            for (unsigned int j = 1; j <= pixels[i].size(); j++) { // 32 cols
+                manipulator.calculate_pixel(i, j);
+            }
+        }
     }
 
     // Pipeline
-    float mlx90640_processor_c::get_temperature_pixel(int row, int col) {
-        data_extractor_s::check_within_limits(row, col);
+    void mlx90640_processor_c::set_frame() {
+        // Datasheet section 11.2.2.1
+        resolution_c res(bus, params);
+        // Datasheet section 11.2.2.2
+        vdd_var_c vdd(bus, params);
+        // Datasheet section 11.2.2.3
+        ta_c ta(bus, params);
+        // Datasheet section 11.2.2.4
+        kgain_c kgain(bus, params);
 
-        // Datasheet page 36 section 11.2.2.3.
-        ta_extractor_c ta(bus);
-        // Datasheet page 37 11.2.2.4.
-        kgain_c kgain(bus);
-        // Datasheet page 39 section 11.2.2.5.3.
-        kv_coefficient_c kv_coefficient(bus, row, col);
-        // Datasheet page 39 section 11.2.2.5.3
-        pix_os_c pix_os(bus, row, col);
-        // Datasheet page 40 section 11.2.2.6.1
-        cp_compensator_c cp_comp(bus, pattern);
-        // Datasheet page 41 section 11.2.2.7.
-        patron_extractor_c patron(bus, row, col, pattern);
-        // Datasheet page 42 section 11.2.2.7.
-        tgc_extractor_c tgc(bus);
-        // Datasheet page 42 section 11.2.2.7
-        vir_extractor_c vir(bus);
-        // Datasheet page 43 section 11.2.2.8
-        alpha_comp_extractor_c alpha(bus, row, col);
-        // Datasheet page 44 section 11.2.2.9.
-        to_extractor_c to(bus);
+        dynamic_vars = {&res, &vdd, &ta, &kgain};
 
-        extractors = {&ta,  &kgain, &kv_coefficient, &pix_os, &cp_comp, &patron,
-                      &tgc, &vir,   &alpha,          &to};
-
-        for (const auto &extractor : extractors) {
-            extractor->extract(params);
+        for (int i = 0; i < 4; i++) {
+            dynamic_vars[i]->re_calculate();
         }
-        return params.To_row_col;
+
+        // Datasheet section 11.2.2.5.1
+        gain_comp_c gain(bus, params, pixels);
+        /* Datasheet section 11.2.2.5.2
+         This calculation already has been done by pix_os_ref object.*/
+        // Datasheet section 11.2.2.5.3
+        pix_os_c pix_os(params, pixels, *lookupables[KTA], *lookupables[KV],
+                        *lookupables[PIX_OS_REF]);
+        // Datasheet section 11.2.2.5.4
+        vir_compensator compensator(params, pixels);
+
+        pixel_calculators = {&gain, &pix_os, &compensator};
+
+        for (int i = 0; i < 3; i++) {
+            calculate_pixel_value(*pixel_calculators[i]);
+        }
+
+        // Datasheet section 11.2.2.6.1
+        gain_cp_c gain_cp(bus, params);
+        // Datasheet section 11.2.2.6.2
+        off_ta_vdd_cp_c ta_vdd_cp_offset(bus, params, pattern);
+
+        dynamic_vars = {&gain_cp, &ta_vdd_cp_offset};
+
+        for (int i = 0; i < 2; i++) {
+            dynamic_vars[i]->re_calculate();
+        }
+
+        // Datasheet section 11.2.2.7
+        ir_gradient_comp ir_gradient(params, pixels, pattern);
+        // Datasheet section 11.2.2.8 + datasheet section 11.2.2.9
+        to_c to(params, pixels, pattern, *lookupables[ALPHA]);
+
+        pixel_calculators = {&ir_gradient, &to};
+
+        for (int i = 0; i < 2; i++) {
+            calculate_pixel_value(*pixel_calculators[i]);
+        }
+
+        for (const auto &col : pixels) {
+            for (const auto &p : col) {
+                hwlib::cout << static_cast<int>(p) << ' ';
+            }
+            hwlib::cout << '\n';
+        }
+    }
+
+    std::array<std::array<float, 32>, 24> &mlx90640_processor_c::get_frame() {
+        return pixels;
     }
 
     void

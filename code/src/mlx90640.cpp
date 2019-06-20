@@ -4,16 +4,11 @@
 
 namespace r2d2::thermal_camera {
 
-    mlx90640_c::mlx90640_c(i2c::i2c_bus_c &bus, const uint8_t address)
-        : mlx_i2c_bus(bus, address), mlx_processor(mlx_i2c_bus) {
+    mlx90640_c::mlx90640_c(i2c::i2c_bus_c &bus, float emissivity,
+                           int refresh_rate, const uint8_t address)
+        : mlx_i2c_bus(bus, address), mlx_processor(mlx_i2c_bus, emissivity) {
         mlx_processor.set_reading_pattern(get_reading_pattern());
-        // ADC is set to 18 bit by default.
-        uint16_t adc_resolution =
-            mlx_i2c_bus.read_register(registers::INTERNAL_CONTROL_REGISTER);
-        toggle_nth_bit(adc_resolution, 10, 0);
-        toggle_nth_bit(adc_resolution, 11, 1);
-        mlx_i2c_bus.write_register(registers::INTERNAL_CONTROL_REGISTER,
-                                   adc_resolution);
+        set_refresh_rate(refresh_rate);
     }
 
     void mlx90640_c::toggle_nth_bit(uint16_t &source, const uint8_t n,
@@ -41,7 +36,6 @@ namespace r2d2::thermal_camera {
         mlx_i2c_bus.write_register(registers::INTERNAL_CONTROL_REGISTER, data);
     }
 
-    /* TODO: this function yet only works with 1Mhz clock speed */
     bool mlx90640_c::frame_available() const {
         uint16_t data =
             mlx_i2c_bus.read_register(registers::INTERNAL_STATUS_REGISTER);
@@ -86,8 +80,18 @@ namespace r2d2::thermal_camera {
         return static_cast<reading_pattern>(data);
     }
 
-    int mlx90640_c::get_pixel(int row, int col) {
-        return mlx_processor.get_temperature_pixel(row, col);
+    void mlx90640_c::set_frame() {
+        int subpage = 0;
+        while (subpage < 2) {
+            if (frame_available()) {
+                mlx_processor.set_frame();
+                subpage++;
+            }
+        }
+    }
+
+    std::array<std::array<float, 32>, 24> &mlx90640_c::get_frame() {
+        return mlx_processor.get_frame();
     }
 
 } // namespace r2d2::thermal_camera
