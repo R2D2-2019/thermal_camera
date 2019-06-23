@@ -19,12 +19,12 @@ namespace r2d2::thermal_camera {
             data_extractor::extract_and_treshold(data, 0xFC00, 10, 31, 64);
 
         params.alpha_cp_sp_0 =
-            data_extractor::extract_data(data, 0x03FF, 0) /
+            static_cast<float>(data_extractor::extract_data(data, 0x03FF, 0)) /
             std::pow(
                 2,
                 alpha_scale_cp); // use std pow, bitshifting can cause overflow
 
         params.alpha_cp_sp_1 =
-            params.alpha_cp_sp_0 * (1 + (CP_P1_P0_ratio / 128));
+            params.alpha_cp_sp_0 * (1.f + (CP_P1_P0_ratio / 128.f));
     }
 } // namespace r2d2::thermal_camera
