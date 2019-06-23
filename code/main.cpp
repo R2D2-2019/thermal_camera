@@ -11,7 +11,15 @@ int main() {
     hwlib::wait_ms(1000);
     i2c_bus_c bus(i2c_bus_c::interface::interface_1, 400'000);
     mlx90640_c thermal_cam(bus);
+
     while (true) {
         thermal_cam.set_frame();
+        for (const auto &row : *thermal_cam.get_frame_ptr()) {
+            for (const auto pixel : row) {
+                hwlib::cout << hwlib::setw(5) << static_cast<int>(pixel) << ' ';
+            }
+            hwlib::cout << hwlib::endl;
+        }
+        hwlib::cout << hwlib::endl << hwlib::endl << hwlib::endl;
     }
 }
