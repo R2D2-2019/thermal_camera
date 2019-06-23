@@ -11,6 +11,13 @@ namespace r2d2::thermal_camera {
         set_refresh_rate(refresh_rate);
     }
 
+    void mlx90640_c::reset_frame() const {
+        uint16_t data =
+            mlx_i2c_bus.read_register(registers::INTERNAL_STATUS_REGISTER);
+        toggle_nth_bit(data, 3, 0);
+        mlx_i2c_bus.write_register(registers::INTERNAL_STATUS_REGISTER, data);
+    }
+
     void mlx90640_c::toggle_nth_bit(uint16_t &source, const uint8_t n,
                                     const bool to) const {
         source = (source & ~(1U << n)) | (to << n);
@@ -40,14 +47,6 @@ namespace r2d2::thermal_camera {
         uint16_t data =
             mlx_i2c_bus.read_register(registers::INTERNAL_STATUS_REGISTER);
         const uint16_t frame_available = (data >> 3) & 1;
-        if (frame_available == 0) {
-            // frame available is false, so we don't need to
-            // toggle anything back. We can leave as it was.
-            return false;
-        }
-        // Otherwise, mark bit as read by setting it back to 0
-        toggle_nth_bit(data, 3, 0);
-        mlx_i2c_bus.write_register(registers::INTERNAL_STATUS_REGISTER, data);
         return frame_available;
     }
 
@@ -86,6 +85,7 @@ namespace r2d2::thermal_camera {
             if (frame_available()) {
                 mlx_processor.set_frame();
                 subpage++;
+                reset_frame();
             }
         }
     }
@@ -93,5 +93,4 @@ namespace r2d2::thermal_camera {
     std::array<std::array<float, 32>, 24> *mlx90640_c::get_frame_ptr() {
         return mlx_processor.get_frame_ptr();
     }
-
 } // namespace r2d2::thermal_camera

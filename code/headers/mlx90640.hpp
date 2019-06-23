@@ -20,6 +20,11 @@ namespace r2d2::thermal_camera {
         mlx90640_processor_c mlx_processor;
 
         /**
+         * Clears the 'new data available' bit in the internal status register.
+         */
+        void reset_frame() const;
+
+        /**
          * Changes nth bit to 'to' in 'source'.
          *
          * @param uint16_t source. The to be changed value.
@@ -91,7 +96,7 @@ namespace r2d2::thermal_camera {
 
         /**
          * Gets the temperature frame.
-         * 
+         *
          * @return std::array<std::array<float, 32>, 24>* the frame pointer.
          */
         std::array<std::array<float, 32>, 24> *get_frame_ptr();

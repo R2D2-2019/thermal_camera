@@ -5,7 +5,6 @@
 #include <pixel_manipulators/pixel_manipulators.hpp>
 #include <static_vars/static_vars.hpp>
 
-
 namespace r2d2::thermal_camera {
 
     mlx90640_processor_c::mlx90640_processor_c(mlx90640_i2c_c &bus,
@@ -146,8 +145,8 @@ namespace r2d2::thermal_camera {
         return &pixels;
     }
 
-    void
-    mlx90640_processor_c::set_reading_pattern(const reading_pattern &pattern) {
+    void mlx90640_processor_c::set_reading_pattern(
+        const reading_pattern &pattern) {
         this->pattern = pattern;
     }
 } // namespace r2d2::thermal_camera
