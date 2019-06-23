@@ -90,8 +90,8 @@ namespace r2d2::thermal_camera {
         }
     }
 
-    std::array<std::array<float, 32>, 24> &mlx90640_c::get_frame() {
-        return mlx_processor.get_frame();
+    std::array<std::array<float, 32>, 24> *mlx90640_c::get_frame_ptr() {
+        return mlx_processor.get_frame_ptr();
     }
 
 } // namespace r2d2::thermal_camera

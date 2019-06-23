@@ -89,7 +89,12 @@ namespace r2d2::thermal_camera {
          */
         void set_frame();
 
-        std::array<std::array<float, 32>, 24> &get_frame();
+        /**
+         * Gets the temperature frame.
+         * 
+         * @return std::array<std::array<float, 32>, 24>* the frame pointer.
+         */
+        std::array<std::array<float, 32>, 24> *get_frame_ptr();
 
         // Max refresh rate of the chip
         static constexpr uint16_t MAX_REFRESH_RATE = 64;

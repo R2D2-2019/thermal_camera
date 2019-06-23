@@ -86,6 +86,6 @@ namespace r2d2::thermal_camera {
         void set_reading_pattern(const reading_pattern &pattern);
         
 
-        std::array<std::array<float, 32>, 24> &get_frame();
+        std::array<std::array<float, 32>, 24> *get_frame_ptr();
     };
 } // namespace r2d2::thermal_camera

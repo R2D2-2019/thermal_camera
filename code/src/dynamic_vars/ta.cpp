@@ -26,6 +26,5 @@ namespace r2d2::thermal_camera {
                     params.Vptat25;
         params.Ta = params.Ta / params.KTptat + params.TA0;
         // TODO: fix this bug
-        params.Ta = 15;
     }
 } // namespace r2d2::thermal_camera

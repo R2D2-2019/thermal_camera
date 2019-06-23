@@ -1,9 +1,10 @@
 #include <mlx90640_processor.hpp>
 
-#include <lookupables/lookupables.hpp>
 #include <dynamic_vars/dynamic_vars.hpp>
-#include <static_vars/static_vars.hpp>
+#include <lookupables/lookupables.hpp>
 #include <pixel_manipulators/pixel_manipulators.hpp>
+#include <static_vars/static_vars.hpp>
+
 
 namespace r2d2::thermal_camera {
 
@@ -138,18 +139,11 @@ namespace r2d2::thermal_camera {
         for (int i = 0; i < 2; i++) {
             calculate_pixel_value(*pixel_calculators[i]);
         }
-
-        for (const auto &col : pixels) {
-            for (const auto &p : col) {
-                hwlib::cout << hwlib::setw(3) << static_cast<int>(p) << ' ';
-            }
-            hwlib::cout << "\n";
-        }
-        hwlib::cout << "\n\n\n\n";
     }
 
-    std::array<std::array<float, 32>, 24> &mlx90640_processor_c::get_frame() {
-        return pixels;
+    std::array<std::array<float, 32>, 24> *
+    mlx90640_processor_c::get_frame_ptr() {
+        return &pixels;
     }
 
     void

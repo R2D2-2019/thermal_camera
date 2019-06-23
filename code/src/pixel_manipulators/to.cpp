@@ -59,10 +59,10 @@ namespace r2d2::thermal_camera {
         }
         // Datasheet section 11.2.2.9.1.3
         pixels[row - 1][col - 1] =
-            std::sqrt(std::sqrt(
-                pixels[row - 1][col - 1] /
-                    (alpha_comp_row_col * alpha_range * (1 + ksto * (To - ct))) +
-                Ta_r)) -
+            std::sqrt(std::sqrt(pixels[row - 1][col - 1] /
+                                    (alpha_comp_row_col * alpha_range *
+                                     (1 + ksto * (To - ct))) +
+                                Ta_r)) -
             273.15;
     }
 } // namespace r2d2::thermal_camera

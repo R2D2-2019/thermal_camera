@@ -1,5 +1,4 @@
 #include <static_vars/ee_ksto.hpp>
-#include <ostream.hpp>
 
 namespace r2d2::thermal_camera {
     ee_ksto_c::ee_ksto_c(mlx90640_i2c_c &bus, mlx_parameters_s &params)
