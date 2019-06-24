@@ -2,11 +2,7 @@
 #include <cstdint>
 
 namespace r2d2::thermal_camera {
-    class data_extractor_s {
-    public:
-        // static class
-        data_extractor_s() = delete;
-
+    namespace data_extractor {
         /**
          * Checks wether value exceeds 'exceeds', if so, it reduces value by
          * 'minus' amount.
@@ -17,7 +13,7 @@ namespace r2d2::thermal_camera {
          *
          * @return int - the tresholded value
          */
-        static int apply_treshold(const int value,
+        int apply_treshold(const int value,
                                   const uint16_t exceeds = 32767,
                                   const int minus = 65536);
 
@@ -27,7 +23,7 @@ namespace r2d2::thermal_camera {
          *
          * @return int - the extracted and tresholded data.
          */
-        static int extract_and_treshold(const int data, const uint16_t and_bits,
+        int extract_and_treshold(const int data, const uint16_t and_bits,
                                         const uint8_t shifted,
                                         const uint16_t exceeds = 32767,
                                         const int minus = 65536);
@@ -41,13 +37,14 @@ namespace r2d2::thermal_camera {
          *
          * @return int - the extracted data.
          */
-        static int extract_data(const int value, const uint16_t and_bits,
+        int extract_data(const int value, const uint16_t and_bits,
                                 const uint8_t shifted);
 
         /**
          * Checks wether row is higher than 32 and col higher than 24.
          * If so. row = 32 and/or col = 24.
          */
-        static void check_within_limits(int &row, int &col);
-    };
+        void check_within_limits(int &row, int &col);
+
+    } // namespace data_extractor
 } // namespace r2d2::thermal_camera

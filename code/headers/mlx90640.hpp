@@ -20,18 +20,27 @@ namespace r2d2::thermal_camera {
         mlx90640_processor_c mlx_processor;
 
         /**
+         * Clears the 'new data available' bit in the internal status register.
+         */
+        void reset_frame() const;
+
+        /**
          * Changes nth bit to 'to' in 'source'.
          *
-         * @param int source. The to be changed value.
+         * @param uint16_t source. The to be changed value.
          * @param uint8_t n. The nth bit to be toggled.
          * @param bool to. This value represents the value it has to be changed
          * to. Either has to be a 0 or a 1.
          */
         void toggle_nth_bit(uint16_t &source, const uint8_t n,
                             const bool to) const;
-
-        // Default address of the MLX90460
-        static constexpr uint8_t I2C_ADDRESS = 0x33;
+        /**
+         * Checks wether a new data set (subpage/frame) is available, and sets
+         * the appropriate internal bit to 0 again.
+         *
+         * @return true if new data is available, false otherwise.
+         */
+        bool frame_available() const;
 
     public:
         /**
@@ -39,8 +48,11 @@ namespace r2d2::thermal_camera {
          *
          * @param i2c_bus_c
          * @param uint8_t address of the device. Default set with 0x33.
+         * @param int refresh_rate in Hz
+         * @param float emissivity correction. Default set by 1.
          */
-        mlx90640_c(i2c::i2c_bus_c &bus, const uint8_t address = I2C_ADDRESS);
+        mlx90640_c(i2c::i2c_bus_c &bus, float emissivity = 1,
+                   int refresh_rate = 2, const uint8_t address = I2C_ADDRESS);
 
         /**
          * Sets the refresh rate in Hz of the camera.
@@ -56,14 +68,6 @@ namespace r2d2::thermal_camera {
          * @return uint16_t refresh rate in Hz.
          */
         uint16_t get_refresh_rate() const;
-
-        /**
-         * Checks wether a new data set (subpage/frame) is available, and sets
-         * the appropriate internal bit to 0 again.
-         *
-         * @return true if new data is available, false otherwise.
-         */
-        bool frame_available() const;
 
         /**
          * Sets the reading pattern of the chip. Interleaved (TV) mode or Chess
@@ -86,16 +90,21 @@ namespace r2d2::thermal_camera {
         reading_pattern get_reading_pattern() const;
 
         /**
-         * Gets a pixel from a given row and col.
-         *
-         * @param int row - the row between 1 - 32
-         * @param int col - the column between 1 and 24
-         * @return int - the temperature in Celsius
+         * Sets the mlx90640::pixels frame.
          */
-        int get_pixel(int row, int col);
+        void set_frame();
+
+        /**
+         * Gets the temperature frame.
+         *
+         * @return std::array<std::array<float, 32>, 24>* the frame pointer.
+         */
+        std::array<std::array<float, 32>, 24> *get_frame_ptr();
 
         // Max refresh rate of the chip
         static constexpr uint16_t MAX_REFRESH_RATE = 64;
+        // Default address of the MLX90460
+        static constexpr uint8_t I2C_ADDRESS = 0x33;
     };
 
 } // namespace r2d2::thermal_camera
