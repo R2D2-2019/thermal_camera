@@ -57,6 +57,7 @@ namespace r2d2::thermal_camera {
         static constexpr int KV = 2;
         static constexpr int ALPHA = 1;
         static constexpr int PIX_OS_REF = 0;
+        static constexpr int MLX_MAX_CLOCK_SPEED = 1'000'000;
 
     public:
         /**

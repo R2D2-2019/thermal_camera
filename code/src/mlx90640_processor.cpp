@@ -12,8 +12,6 @@ namespace r2d2::thermal_camera {
         : bus(bus), params{}, pixels{{}} {
         params.emissivity = emissivity;
 
-        hwlib::cout << "Mlx90640 initializing...\n";
-
         // Datasheet section 11.1.3
         pix_os_ref_c pix_offset(bus, params);
         // Datasheet section 11.1.4
@@ -63,8 +61,8 @@ namespace r2d2::thermal_camera {
         for (const auto &static_var : static_vars) {
             static_var->extract();
         }
-
-        hwlib::cout << "Mlx90640 initialized!\n";
+        // Increase clock speed for max performance
+        bus.change_clock_speed(MLX_MAX_CLOCK_SPEED); 
     }
 
     void mlx90640_processor_c::init_table(lookupable_c &table) {

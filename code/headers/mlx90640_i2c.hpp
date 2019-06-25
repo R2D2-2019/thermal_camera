@@ -32,5 +32,7 @@ namespace r2d2::thermal_camera {
          */
         void write_register(const uint16_t internal_address,
                             const uint16_t data) const;
+        
+        void change_clock_speed(const uint32_t speed);
     };
 } // namespace r2d2::thermal_camera
