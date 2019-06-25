@@ -15,10 +15,11 @@ namespace r2d2::thermal_camera {
           pix_offset(bus, params),
           alpha(bus, params),
           kv(bus, params),
-          kta(bus, params),
-          lookupables{&pix_offset, &alpha, &kv, &kta} {
+          kta(bus, params) {
         params.emissivity = emissivity;
-
+        
+        std::array<lookupable_c *, 4> lookupables{&pix_offset, &alpha, &kv,
+                                                  &kta};
         for (const auto &table : lookupables) {
             init_table(*table);
         }
@@ -74,8 +75,6 @@ namespace r2d2::thermal_camera {
 
     void mlx90640_processor_c::calculate_pixel_value(
         pixel_manipulator_c &manipulator) {
-        static int cnt = 0;
-        cnt++;
         for (unsigned int i = 1; i <= pixels.size(); i++) {        // 24 rows
             for (unsigned int j = 1; j <= pixels[i].size(); j++) { // 32 cols
                 manipulator.calculate_pixel(i, j);
@@ -99,7 +98,7 @@ namespace r2d2::thermal_camera {
         for (int i = 0; i < 4; i++) {
             dynamic_vars[i]->re_calculate();
         }
-
+        
         // Datasheet section 11.2.2.5.1
         gain_comp_c gain(bus, params, pixels);
         /* Datasheet section 11.2.2.5.2
@@ -144,8 +143,8 @@ namespace r2d2::thermal_camera {
         return &pixels;
     }
 
-    void
-    mlx90640_processor_c::set_reading_pattern(const reading_pattern &pattern) {
+    void mlx90640_processor_c::set_reading_pattern(
+        const reading_pattern &pattern) {
         this->pattern = pattern;
     }
 } // namespace r2d2::thermal_camera

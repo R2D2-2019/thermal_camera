@@ -40,8 +40,7 @@ namespace r2d2::thermal_camera {
         kv_c kv;
         // Datasheet section 11.1.6
         kta_c kta;
-        // Lookuptables, static as well
-        std::array<lookupable_c *, 4> lookupables;
+
         /**
          * Initializes one lookuptable with a double for loop.
          *

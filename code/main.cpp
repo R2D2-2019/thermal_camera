@@ -16,7 +16,7 @@ int main() {
         thermal_cam.set_frame();
         for (const auto &row : *thermal_cam.get_frame_ptr()) {
             for (const auto pixel : row) {
-                hwlib::cout << hwlib::setw(5) << static_cast<int>(pixel) << ' ';
+                hwlib::cout << static_cast<int>(pixel) << hwlib::setw(5) << ' ';
             }
             hwlib::cout << hwlib::endl;
         }
