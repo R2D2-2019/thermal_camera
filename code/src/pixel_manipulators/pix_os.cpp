@@ -3,7 +3,8 @@
 namespace r2d2::thermal_camera {
     pix_os_c::pix_os_c(mlx_parameters_s &params,
                        std::array<std::array<float, 32>, 24> &pixels,
-                       lookupable_c &kta, lookupable_c &kv, lookupable_c &pix_os_ref)
+                       kta_c &kta, kv_c &kv,
+                       pix_os_ref_c &pix_os_ref)
         : pixel_manipulator_c(params, pixels),
           kta(kta),
           kv(kv),

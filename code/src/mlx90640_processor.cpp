@@ -9,19 +9,15 @@ namespace r2d2::thermal_camera {
 
     mlx90640_processor_c::mlx90640_processor_c(mlx90640_i2c_c &bus,
                                                float emissivity)
-        : bus(bus), params{}, pixels{{}} {
+        : bus(bus),
+          params{},
+          pixels{{}},
+          pix_offset(bus, params),
+          alpha(bus, params),
+          kv(bus, params),
+          kta(bus, params),
+          lookupables{&pix_offset, &alpha, &kv, &kta} {
         params.emissivity = emissivity;
-
-        // Datasheet section 11.1.3
-        pix_os_ref_c pix_offset(bus, params);
-        // Datasheet section 11.1.4
-        alpha_c alpha(bus, params);
-        // Datasheet section 11.1.5
-        kv_c kv(bus, params);
-        // Datasheet section 11.1.6
-        kta_c kta(bus, params);
-
-        lookupables = {&pix_offset, &alpha, &kv, &kta};
 
         for (const auto &table : lookupables) {
             init_table(*table);
@@ -54,15 +50,18 @@ namespace r2d2::thermal_camera {
         // Datasheet section 11.1.17
         ee_resolution_c resolution(bus, params);
 
+        // Static variables stored in device EEPROM
+        std::array<static_var_c *, 13> static_vars;
         static_vars = {&ee_vdd, &ee_ta,      &ee_gain,   &ksta,      &ct,
                        &ksto,   &alpha_corr, &alpha_cp,  &cp_offset, &kv_cp,
                        &kta_cp, &tgc,        &resolution};
+
         // Sets all EEPROM data in mlx params
         for (const auto &static_var : static_vars) {
             static_var->extract();
         }
         // Increase clock speed for max performance
-        bus.change_clock_speed(MLX_MAX_CLOCK_SPEED); 
+        bus.change_clock_speed(MLX_MAX_CLOCK_SPEED);
     }
 
     void mlx90640_processor_c::init_table(lookupable_c &table) {
@@ -75,6 +74,8 @@ namespace r2d2::thermal_camera {
 
     void mlx90640_processor_c::calculate_pixel_value(
         pixel_manipulator_c &manipulator) {
+        static int cnt = 0;
+        cnt++;
         for (unsigned int i = 1; i <= pixels.size(); i++) {        // 24 rows
             for (unsigned int j = 1; j <= pixels[i].size(); j++) { // 32 cols
                 manipulator.calculate_pixel(i, j);
@@ -103,9 +104,9 @@ namespace r2d2::thermal_camera {
         gain_comp_c gain(bus, params, pixels);
         /* Datasheet section 11.2.2.5.2
          This calculation already has been done by pix_os_ref object.*/
+         
         // Datasheet section 11.2.2.5.3
-        pix_os_c pix_os(params, pixels, *lookupables[KTA], *lookupables[KV],
-                        *lookupables[PIX_OS_REF]);
+        pix_os_c pix_os(params, pixels, kta, kv, pix_offset);
         // Datasheet section 11.2.2.5.4
         vir_compensator compensator(params, pixels);
 
@@ -143,8 +144,8 @@ namespace r2d2::thermal_camera {
         return &pixels;
     }
 
-    void mlx90640_processor_c::set_reading_pattern(
-        const reading_pattern &pattern) {
+    void
+    mlx90640_processor_c::set_reading_pattern(const reading_pattern &pattern) {
         this->pattern = pattern;
     }
 } // namespace r2d2::thermal_camera

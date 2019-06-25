@@ -1,13 +1,13 @@
 #pragma once
 
 #include <array>
-#include <dynamic_vars/dynamic_var.hpp>
-#include <lookupables/lookupable.hpp>
-#include <mlx90640_i2c.hpp>
-#include <mlx_parameters.hpp>
-#include <pixel_manipulators/pixel_manipulator.hpp>
+#include <dynamic_vars/dynamic_vars.hpp>
+#include <lookupables/lookupables.hpp>
+#include <mlx90640_processor.hpp>
+#include <pixel_manipulators/pixel_manipulators.hpp>
 #include <registers.hpp>
-#include <static_vars/static_var.hpp>
+#include <static_vars/static_vars.hpp>
+
 
 namespace r2d2::thermal_camera {
     /**
@@ -27,18 +27,22 @@ namespace r2d2::thermal_camera {
         // Container, calculating all the dynamic variables
         std::array<dynamic_var_c *, 4> dynamic_vars;
 
-        // Static variables stored in device EEPROM
-        std::array<static_var_c *, 13> static_vars;
-
-        // Lookuptables, static as well
-        std::array<lookupable_c *, 4> lookupables;
-
         // Pixel calculators, calculating pixel values
         std::array<pixel_manipulator_c *, 3> pixel_calculators;
 
         // Pixels
         std::array<std::array<float, 32>, 24> pixels;
 
+        // Datasheet section 11.1.3
+        pix_os_ref_c pix_offset;
+        // Datasheet section 11.1.4
+        alpha_c alpha;
+        // Datasheet section 11.1.5
+        kv_c kv;
+        // Datasheet section 11.1.6
+        kta_c kta;
+        // Lookuptables, static as well
+        std::array<lookupable_c *, 4> lookupables;
         /**
          * Initializes one lookuptable with a double for loop.
          *
@@ -53,10 +57,6 @@ namespace r2d2::thermal_camera {
          */
         void calculate_pixel_value(pixel_manipulator_c &manipulator);
 
-        static constexpr int KTA = 3;
-        static constexpr int KV = 2;
-        static constexpr int ALPHA = 1;
-        static constexpr int PIX_OS_REF = 0;
         static constexpr int MLX_MAX_CLOCK_SPEED = 1'000'000;
 
     public:
@@ -85,7 +85,6 @@ namespace r2d2::thermal_camera {
          * @param reading_pattern
          */
         void set_reading_pattern(const reading_pattern &pattern);
-        
 
         std::array<std::array<float, 32>, 24> *get_frame_ptr();
     };
