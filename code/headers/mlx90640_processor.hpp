@@ -8,7 +8,6 @@
 #include <registers.hpp>
 #include <static_vars/static_vars.hpp>
 
-
 namespace r2d2::thermal_camera {
     /**
      * This class is the pipeline.
@@ -86,6 +85,12 @@ namespace r2d2::thermal_camera {
          */
         void set_reading_pattern(const reading_pattern &pattern);
 
+        /**
+         * Gets the pointer to the array.
+         *
+         * @return std::array<std::arrray, 32>, 24> the pixel values in celsius
+         * degrees.
+         */
         std::array<std::array<float, 32>, 24> *get_frame_ptr();
     };
 } // namespace r2d2::thermal_camera

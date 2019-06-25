@@ -104,7 +104,7 @@ namespace r2d2::thermal_camera {
         gain_comp_c gain(bus, params, pixels);
         /* Datasheet section 11.2.2.5.2
          This calculation already has been done by pix_os_ref object.*/
-         
+
         // Datasheet section 11.2.2.5.3
         pix_os_c pix_os(params, pixels, kta, kv, pix_offset);
         // Datasheet section 11.2.2.5.4
@@ -130,7 +130,7 @@ namespace r2d2::thermal_camera {
         // Datasheet section 11.2.2.7
         ir_gradient_comp ir_gradient(params, pixels, pattern);
         // Datasheet section 11.2.2.8 + datasheet section 11.2.2.9
-        to_c to(params, pixels, pattern, *lookupables[ALPHA]);
+        to_c to(params, pixels, pattern, alpha);
 
         pixel_calculators = {&ir_gradient, &to};
 
