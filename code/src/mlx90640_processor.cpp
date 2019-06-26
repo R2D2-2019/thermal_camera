@@ -98,12 +98,11 @@ namespace r2d2::thermal_camera {
         for (int i = 0; i < 4; i++) {
             dynamic_vars[i]->re_calculate();
         }
-        
+
         // Datasheet section 11.2.2.5.1
         gain_comp_c gain(bus, params, pixels);
         /* Datasheet section 11.2.2.5.2
          This calculation already has been done by pix_os_ref object.*/
-
         // Datasheet section 11.2.2.5.3
         pix_os_c pix_os(params, pixels, kta, kv, pix_offset);
         // Datasheet section 11.2.2.5.4

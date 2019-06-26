@@ -55,7 +55,7 @@ namespace r2d2::thermal_camera {
          */
         void calculate_pixel_value(pixel_manipulator_c &manipulator);
 
-        static constexpr int MLX_MAX_CLOCK_SPEED = 1'000'000;
+        static constexpr unsigned int MLX_MAX_CLOCK_SPEED = 1'000'000;
 
     public:
         /**
