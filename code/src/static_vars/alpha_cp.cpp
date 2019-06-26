@@ -8,7 +8,7 @@ namespace r2d2::thermal_camera {
 
     void alpha_cp_c::extract() {
         int data;
-        // TODO: convert to appropriate row/col address.
+
         data = bus.read_register(registers::EE_ALPHA_ACC_SCALE);
 
         const int alpha_scale_cp =

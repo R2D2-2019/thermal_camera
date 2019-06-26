@@ -4,7 +4,7 @@
 namespace r2d2::thermal_camera {
     to_c::to_c(mlx_parameters_s &params,
                std::array<std::array<float, 32>, 24> &pixels,
-               const reading_pattern pattern, lookupable_c &alpha)
+               const reading_pattern pattern, alpha_c &alpha)
         : pixel_manipulator_c(params, pixels), pattern(pattern), alpha(alpha) {
     }
 
