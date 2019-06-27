@@ -1,94 +1,95 @@
 #pragma once
 
 #include <array>
-#include <cmath>
-#include <mlx90640_i2c.hpp>
+#include <dynamic_vars/dynamic_vars.hpp>
+#include <lookupables/lookupables.hpp>
+#include <mlx90640_processor.hpp>
+#include <pixel_manipulators/pixel_manipulators.hpp>
 #include <registers.hpp>
+#include <static_vars/static_vars.hpp>
 
 namespace r2d2::thermal_camera {
     /**
-     * This class is responsible for all calculations & includes all math.
-     * Floating point values are used because if we cast it to integer values, a
-     * rounding will take place that, at the end of all calculations, will be
-     * very different from the actual desired result. Please see the datasheet.
+     * This class is the pipeline.
      */
     class mlx90640_processor_c {
     private:
         // i2c bus with (internal) read- and write_register operations.
         mlx90640_i2c_c &bus;
 
-        /**
-         * Supply voltage in Volts
-         */
-        static constexpr float VDD0 = 3.3;
-        // Kvdd, required for calculations
-        int Kvdd;
-        // Kvdd25, required for calculations
-        int Vdd25;
+        // Current reading pattern.
+        reading_pattern pattern;
+
+        // POD containing all parameters
+        mlx_parameters_s params;
+
+        // Container, calculating all the dynamic variables
+        std::array<dynamic_var_c *, 4> dynamic_vars;
+
+        // Pixel calculators, calculating pixel values
+        std::array<pixel_manipulator_c *, 3> pixel_calculators;
+
+        // Pixels
+        std::array<std::array<float, 32>, 24> pixels;
+
+        // Datasheet section 11.1.3
+        pix_os_ref_c pix_offset;
+        // Datasheet section 11.1.4
+        alpha_c alpha;
+        // Datasheet section 11.1.5
+        kv_c kv;
+        // Datasheet section 11.1.6
+        kta_c kta;
 
         /**
-         * The device is calibrated with default resolution setting = 2
-         * i.e. if the one choose to change the ADC resolution setting to a
-         * different one a correction of the data must be done.
-         */
-        uint8_t get_resolution_correlation() const;
-
-        /**
-         * Extracts the data from a given addres.
+         * Initializes one lookuptable with a double for loop.
          *
-         * @param uin16_t reg_addr - a register address of the chip.
-         * @param uint16_t and_bits - ands the result from the read operation
-         * with and_bits.
-         * @param uint16_t shifted - shifts the bits with shifted amount.
+         * @param lookuptable table - a lookuptable.
          */
-        uint16_t extract_data(const registers reg_addr, const uint16_t and_bits,
-                              const uint8_t shifted) const;
+        void init_table(lookupable_c &table);
 
         /**
-         * Checks wether value exceeds 'exceeds', if so, it reduces value by
-         * 'minus' amount.
+         * Calculates all the values for pixels.
          *
-         * @param int value - the value to be checked.
-         * @param uint16_t exceeds - the value it may not exceed.
-         * @param uint16_t minus - the value 'value' gets reduced by.
+         * @param pixel_manipulator_c manipulator - a pixel manipulator.
          */
-        void apply_treshold(int &value, const uint16_t exceeds,
-                            const int minus) const;
+        void calculate_pixel_value(pixel_manipulator_c &manipulator);
 
-        /**
-         * Reads a register, extracts the data and applies a treshold on it.
-         * See apply_treshold and extract_data functions for the parameter info.
-         *
-         * @return int - the processed data.
-         */
-        int get_compensated_data(const registers reg_addr,
-                                 const uint16_t and_bits, const uint8_t shifted,
-                                 const uint16_t exceeds, const int minus) const;
+        static constexpr unsigned int MLX_MAX_CLOCK_SPEED = 1'000'000;
 
     public:
-        mlx90640_processor_c(mlx90640_i2c_c &bus);
+        /**
+         * Constructor.
+         *
+         * @param mlx90640_i2c_c bus - the i2c bus for mlx90640.
+         * @param float emissivity - The emissivity of the surface of a material
+         * is its effectiveness in emitting energy as thermal radiation. Thermal
+         * radiation is electromagnetic radiation and it may include both
+         * visible radiation (light) and infrared radiation, which is not
+         * visible to human eyes.
+         */
+        mlx90640_processor_c(mlx90640_i2c_c &bus, float emissivity = 1);
 
         /**
-         * Gets the VDD sensor parameters
+         * Pipeline for getting the pixel temperature it is pointed at.
          *
-         * @return float
+         * @return float - the temperature at (row, col)
          */
-        float get_Vdd();
+        void set_frame();
 
         /**
-         * Gets the ambient temperature of the pixels
+         * Sets the reading pattern.
          *
-         * @return float
+         * @param reading_pattern
          */
-        float get_Ta() const;
+        void set_reading_pattern(const reading_pattern &pattern);
 
         /**
-         * Gets the gain parameter.Please note that this value is updated every
-         * frame and it is the same for all pixels including CP regardless the
-         * subpage number
+         * Gets the pointer to the array.
          *
-         * @return float
+         * @return std::array<std::arrray, 32>, 24> the pixel values in celsius
+         * degrees.
          */
-        float get_gain() const;
+        std::array<std::array<float, 32>, 24> *get_frame_ptr();
     };
 } // namespace r2d2::thermal_camera

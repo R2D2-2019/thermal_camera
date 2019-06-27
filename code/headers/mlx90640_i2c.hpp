@@ -22,7 +22,7 @@ namespace r2d2::thermal_camera {
          * @param uint16_t internal address of the chip
          * @return uint16_t read data.
          */
-        uint16_t read_register(const registers internal_address) const;
+        uint16_t read_register(const uint16_t internal_address) const;
 
         /**
          * Writes a register.
@@ -30,7 +30,9 @@ namespace r2d2::thermal_camera {
          * @param uint16_t internal_address of the chip.
          * @param uint16_t data to be written
          */
-        void write_register(const registers internal_address,
+        void write_register(const uint16_t internal_address,
                             const uint16_t data) const;
+        
+        void change_clock_speed(const uint32_t speed);
     };
 } // namespace r2d2::thermal_camera
